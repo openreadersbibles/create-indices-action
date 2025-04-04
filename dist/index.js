@@ -35570,7 +35570,7 @@ class IndexBuilder {
         });
     }
     async run() {
-        const projectJson = await this.getRepoFile(`${this.repo}.json`);
+        const projectJson = await this.getRepoFile(`${this.project?.id}.json`);
         this.project = ProjectConfiguration/* ProjectConfiguration */.IF.fromRow(JSON.parse(projectJson));
         core.debug(`Project Configuration: ${this.project.id}`);
         const folders = await this.getDirectories();
