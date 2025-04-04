@@ -35513,9 +35513,6 @@ ${this.produceCanonTable(Canons.NT)}
 </body>
 </html>
         `;
-        return (this.produceCanonTable(Canons.OT) +
-            this.produceCanonTable(Canons.LXX) +
-            this.produceCanonTable(Canons.NT));
     }
     produceCanonTable(cd) {
         if (this.hasAnyFiles(cd)) {
