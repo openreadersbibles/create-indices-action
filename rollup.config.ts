@@ -3,7 +3,6 @@
 import commonjs from '@rollup/plugin-commonjs'
 import nodeResolve from '@rollup/plugin-node-resolve'
 import typescript from '@rollup/plugin-typescript'
-import resolve from '@rollup/plugin-node-resolve'
 
 const config = {
   input: 'src/index.ts',
@@ -14,12 +13,12 @@ const config = {
     sourcemap: true
   },
   plugins: [
-    typescript(),
-    nodeResolve({
-      preferBuiltins: true
+    typescript({
+      tsconfig: './tsconfig.json',
+      noEmitOnError: false // Ensure files are emitted even if there are errors
     }),
-    commonjs(),
-    resolve()
+    nodeResolve({ preferBuiltins: true }),
+    commonjs()
   ]
 }
 

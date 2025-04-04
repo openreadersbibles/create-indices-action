@@ -23,7 +23,9 @@
     "node": ">=20"
   },
   "scripts": {
+    "esbuild": "esbuild src/index.ts --bundle --outfile=dist/index.js --sourcemap --platform=node",
     "bundle": "npm run format:write && npm run package",
+    "bundle-esbuild": "npm run format:write && npm run esbuild",
     "ci-test": "NODE_OPTIONS=--experimental-vm-modules NODE_NO_WARNINGS=1 npx jest",
     "coverage": "npx make-coverage-badge --output-path ./badges/coverage.svg",
     "format:write": "npx prettier --write .",
@@ -38,7 +40,8 @@
   "license": "MIT",
   "dependencies": {
     "@actions/core": "^1.11.1",
-    "@octokit/core": "^6.1.4"
+    "@octokit/core": "^6.1.4",
+    "xmlbuilder2": "^3.1.1"
   },
   "devDependencies": {
     "@eslint/compat": "^1.2.7",
@@ -52,6 +55,7 @@
     "@typescript-eslint/eslint-plugin": "^8.28.0",
     "@typescript-eslint/parser": "^8.28.0",
     "cross-env": "^7.0.3",
+    "esbuild": "^0.25.2",
     "eslint": "^9.23.0",
     "eslint-config-prettier": "^10.0.2",
     "eslint-import-resolver-typescript": "^4.3.1",
@@ -63,6 +67,7 @@
     "prettier": "^3.5.3",
     "prettier-eslint": "^16.3.0",
     "rollup": "^4.38.0",
+    "rollup-plugin-esbuild": "^6.2.1",
     "ts-jest": "^29.3.0",
     "ts-jest-resolver": "^2.0.1",
     "typescript": "^5.8.2"
