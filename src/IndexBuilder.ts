@@ -30,7 +30,7 @@ export class IndexBuilder {
   }
 
   async run() {
-    const projectJson = await this.getRepoFile(`${this.project?.id}.json`)
+    const projectJson = await this.getRepoFile(`${this.repo.slice(4)}.json`)
     this.project = ProjectConfiguration.fromRow(
       JSON.parse(projectJson) as ProjectConfigurationRow
     )
