@@ -78,11 +78,6 @@ ${this.produceCanonTable(NT)}
 </body>
 </html>
         `
-    return (
-      this.produceCanonTable(OT) +
-      this.produceCanonTable(LXX) +
-      this.produceCanonTable(NT)
-    )
   }
 
   produceCanonTable(cd: CanonData): string {

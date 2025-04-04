@@ -5,11 +5,18 @@ Test locally:
 ```
 npx @github/local-action . src/main.ts .env
 ```
+(where `.env` has been configured with the inputs and the spoof variables; based on `.env.example`)
 
-Build:
+Build & deploy:
 ```
 ncc build src/index.ts
+git add .
+git commit -m 'update'
+git tag -f production
+git push origin production -f
 ```
+
+Note that the bundler that they suggest, rollup, just doesn't work. (It had trouble with TypeScript files outside of the project directoryy.)
 
 [![GitHub Super-Linter](https://github.com/actions/typescript-action/actions/workflows/linter.yml/badge.svg)](https://github.com/super-linter/super-linter)
 ![CI](https://github.com/actions/typescript-action/actions/workflows/ci.yml/badge.svg)
