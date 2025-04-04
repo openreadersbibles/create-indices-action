@@ -1,0 +1,61 @@
+import { ParsingFormat, ParsingFormatId } from './parsing-formats/ParsingFormat';
+import { ProjectConfiguration } from './ProjectConfiguration';
+import { Canon } from './VerseReference';
+export interface PublicationConfigurationRow {
+    footnoteMarkers: string[];
+    polyglossiaOtherLanguage: string;
+    chapterHeader: string;
+    publication_project_font: string;
+    publication_biblical_font: string;
+    latex_template: string;
+    parsing_formats: {
+        [key: string]: string;
+    };
+    css_template: string;
+    footnote_style: PublicationFootnoteStyle;
+}
+export type PublicationFootnoteStyle = "lettered-by-verse" | "numbered-by-page";
+export declare class PublicationConfiguration {
+    _project: ProjectConfiguration;
+    private _id;
+    private _footnoteMarkers;
+    private _polyglossiaOtherLanguage;
+    private _chapterHeader;
+    private _publication_project_font;
+    private _publication_biblical_font;
+    private _latex_template;
+    private _parsing_formats;
+    private _footnote_style;
+    private _css_template;
+    constructor(id: string, project: ProjectConfiguration);
+    get id(): string;
+    get project(): ProjectConfiguration;
+    get footnoteMarkers(): string[];
+    get polyglossiaOtherLanguage(): string;
+    get chapterHeader(): string;
+    get parsing_formats(): Map<Canon, ParsingFormatId>;
+    get latex_template(): string;
+    get publicationProjectFont(): string;
+    get css_template(): string;
+    set css_template(value: string);
+    set publicationProjectFont(font: string);
+    get publicationBiblicalFont(): string;
+    get footnote_style(): PublicationFootnoteStyle;
+    set footnote_style(value: PublicationFootnoteStyle);
+    set publicationBiblicalFont(font: string);
+    set latex_template(value: string);
+    set footnoteMarkers(markers: string[]);
+    set polyglossiaOtherLanguage(other: string);
+    set chapterHeader(header: string);
+    get canonsWithoutParsingFormats(): Canon[];
+    get canonsWithParsingFormats(): Canon[];
+    getParsingFormat(canon: Canon): ParsingFormat | undefined;
+    getChapterHeader(chapter: number): string;
+    getFootnoteMarker(index: number): string;
+    demoChapterHeader(number: string): string;
+    demoFootnoteMarkers(howmany: number): string;
+    toObject(): PublicationConfigurationRow;
+    static fromRow(row: PublicationConfigurationRow, id: string, project: ProjectConfiguration): PublicationConfiguration;
+    static default_latex_template: string;
+    static default_css_template: string;
+}

@@ -1,0 +1,45 @@
+import { NTVerboseParsingFormatStrings } from "./NTVerboseParsingFormatStrings";
+import { StringLookup } from "./ParsingFormat";
+export interface NTTemplaticParsingFormatStrings extends StringLookup, NTVerboseParsingFormatStrings {
+    noun_template: string;
+    infinitive_template: string;
+    participle_template: string;
+    finite_verb_template: string;
+}
+export declare const NTTemplativeStringLabels: {
+    nominative: string;
+    genitive: string;
+    dative: string;
+    accusative: string;
+    masculine: string;
+    feminine: string;
+    neuter: string;
+    singular: string;
+    plural: string;
+    present: string;
+    imperfect: string;
+    future: string;
+    aorist: string;
+    perfect: string;
+    pluperfect: string;
+    active: string;
+    middle: string;
+    passive: string;
+    indicative: string;
+    imperative: string;
+    subjunctive: string;
+    optative: string;
+    infinitive: string;
+    participle: string;
+    first: string;
+    second: string;
+    third: string;
+    verb: string;
+    noun: string;
+    noun_template: string;
+    infinitive_template: string;
+    participle_template: string;
+    finite_verb_template: string;
+};
+export declare const NTTemplaticEnglish: NTTemplaticParsingFormatStrings;
+export declare const NTTemplaticPersian: NTTemplaticParsingFormatStrings;

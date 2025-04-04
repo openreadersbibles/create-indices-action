@@ -1,0 +1,55 @@
+import { PublicationWord } from "./PublicationWord";
+import { PublicationFootnoteType } from "./PublicationFootnote";
+import { PublicationRequest } from "../../models/PublicationRequest";
+import { Annotation } from "../../models/Annotation";
+import { PublicationWordElement } from "./PublicationWordElement";
+import { PublicationHebrewWordElementRow } from "./PublicationHebrewWordElementRow";
+import { BaseWordElement } from "./BaseWordElement";
+import { OTGender, OTGrammaticalNumber, OTPartOfSpeech, OTPerson, OTState, OTTense, OTVerbStem } from "../../models/HebrewWordRow";
+import { PublicationPhrasalGloss } from "./PublicationPhrasalGloss";
+import { VerseReference } from "../../models/VerseReference";
+export interface HasReferenceString {
+    reference: string;
+}
+export declare class PublicationHebrewWordElement extends BaseWordElement implements PublicationWordElement {
+    row: PublicationHebrewWordElementRow;
+    static substantives: string[];
+    constructor(obj: PublicationHebrewWordElementRow, word: PublicationWord, request: PublicationRequest);
+    static fromWordRow(obj: any, word: PublicationWord, request: PublicationRequest): PublicationWordElement;
+    get plaintext(): string;
+    get trailer(): string;
+    get gloss(): Annotation | null;
+    get _id(): number;
+    get g_word_utf8(): string;
+    get trailer_utf8(): string;
+    get voc_lex_utf8(): string;
+    get gn(): OTGender;
+    get nu(): OTGrammaticalNumber;
+    get st(): OTState;
+    get vt(): OTTense;
+    get vs(): OTVerbStem;
+    get ps(): OTPerson;
+    get pdp(): OTPartOfSpeech;
+    get freq_lex(): number;
+    get qere_utf8(): string;
+    get kq_hybrid_utf8(): string;
+    get prs_gn(): OTGender;
+    get prs_nu(): OTGrammaticalNumber;
+    get prs_ps(): OTPerson;
+    get lexicalform(): string;
+    requiredFootnoteType(ref: VerseReference): PublicationFootnoteType;
+    get reference(): string;
+    get hasPronominalSuffix(): boolean;
+    get hasKetivQere(): boolean;
+    getBelowFrequencyThreshold(ref: VerseReference): boolean;
+    get terminatesWord(): boolean;
+    get canBeParsed(): boolean;
+    get isVerb(): boolean;
+    get isSubstantive(): boolean;
+    get isInteroggative(): boolean;
+    get hasPrecedingInterrogative(): boolean;
+    getParsingString(ref: VerseReference): string;
+    get ketivQereString(): string;
+    get phrasalGlosses(): PublicationPhrasalGloss[];
+    get id(): number;
+}
