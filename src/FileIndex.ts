@@ -82,11 +82,11 @@ ${this.produceCanonTable(NT)}
 
   produceCanonTable(cd: CanonData): string {
     if (this.hasAnyFiles(cd)) {
-      let result = `<h2 class="toc">${cd.name}</h2><table class="toc">`
+      let result = `<h2 class="toc">${cd.name}</h2><table class="toc"><tbody>`
       cd.books.forEach((book) => {
         if (this.hasEither(cd.name, book)) {
           result += `<tr>`
-          result += `<td>${this.project.getBookName(book)}</td>`
+          result += `<th>${this.project.getBookName(book)}</th>`
           if (this.hasPdf(cd.name, book)) {
             result += `<td><a href="${this.pdfIndex.get(cd.name)?.get(book)?.filename}">PDF</a></td>`
           } else {
@@ -100,7 +100,7 @@ ${this.produceCanonTable(NT)}
           result += `</tr>`
         }
       })
-      result += '</table>'
+      result += '</tbody></table>'
       return result
     } else {
       return ''
