@@ -41,6 +41,10 @@ export class IndexBuilder {
     const files = await Promise.all(
       folders.map((dir) => this.createIndexForFolder(dir))
     )
+
+    const rootIndex = await this.createRootIndex(folders)
+    files.push(rootIndex)
+
     await this.addFilesToRepository(this.repo, files, 'gh-pages')
   }
 
@@ -72,7 +76,7 @@ export class IndexBuilder {
     }
   }
 
-  async getDirectories() {
+  async getDirectories(): Promise<string[]> {
     const response = await this.octokit.request(
       'GET /repos/{owner}/{repo}/contents/{path}',
       {
@@ -104,6 +108,35 @@ export class IndexBuilder {
     const index = new FileIndex(files, this.project)
     return { path: `${folder}/index.html`, content: index.toHtml() }
   }
+
+  async createRootIndex(folders: string[]): Promise<GitHubFile> {
+    if (!this.project) {
+      throw new Error('Project configuration is not loaded.')
+    }
+    let list = "<ul>";
+    folders.forEach((folder) => {
+      list += `<li><a href="${folder}/index.html">${folder}</a></li>`;
+    });
+    list += "</ul>";
+    const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${this.project.title}</title>
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<h1>${this.project.title}</h1>
+<p class="project-description">${this.project.description}</p>
+${list}
+</body>
+</html>
+        `
+    return { path: `index.html`, content: html }
+  }
+
 
   async getRepoFile(path: string): Promise<string> {
     const response = await this.octokit.request(
