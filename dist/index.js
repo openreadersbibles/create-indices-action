@@ -33197,10 +33197,185 @@ function canonicalOrderSort(a, b) {
     return aIndex - bIndex;
 }
 
-;// CONCATENATED MODULE: ../application/models/assets/default_latex_template.json
-const default_latex_template_namespaceObject = {};
-;// CONCATENATED MODULE: ../application/models/assets/style.json
-const style_namespaceObject = {};
+;// CONCATENATED MODULE: ../application/models/assets/default_latex_template.ts
+const latexTemplate = "\\documentclass{openreader}\r\n\\title{__TITLE__}\r\n\\date{}\r\n\\setmainlanguage{__MAINLANGUAGE__}\r\n\\setmainfont{__MAINLANGUAGEFONT__}\r\n\\setotherlanguage{__BIBLICALLANGUAGE__}\r\n__NEWFONTFAMILYCOMMAND__\r\n\\FootnoteStyle{__FOOTNOTESTYLE__}\r\n\\begin{document}\r\n\\ORBselectlanguage{__BIBLICALLANGUAGE__}\r\n\\maketitle\r\n\\raggedbottom \r\n\\fontsize{16pt}{24pt}\\selectfont\r\n__CONTENT__\r\n\\end{document}";
+
+;// CONCATENATED MODULE: ../application/models/assets/style.ts
+const cssTemplate = `body {
+    font-family: __BIBLICAL_FONT__, Georgia, serif;
+    line-height: 1.5;
+    margin: 2rem;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 2rem;
+    user-select: none;
+}
+
+html[lang='hbo'] {
+    direction: rtl;
+}
+
+html[lang='grc'] {
+    direction: ltr;
+}
+.chapter {
+    margin-bottom: 1rem;
+}
+.chapter-number {
+    font-family: __PROJECT_FONT__;
+    font-weight: bold;
+    margin-right: 0.5rem;
+    color: #444;
+}
+.verse {
+    display: inline;
+}
+.verse-number {
+    font-family: __PROJECT_FONT__;
+    font-size: 1.5rem;
+    color: black;
+    vertical-align: top;
+    margin-left: 0.3rem;
+}
+.annotation-toggle {
+    font-family: __PROJECT_FONT__;
+    cursor: pointer;
+    color: gray;
+    text-decoration: none;
+    vertical-align: super;
+    font-size: 1.5rem;
+    position: relative;
+    display: inline-block;
+}
+
+.annotation {
+    font-family: __PROJECT_FONT__;
+
+    color: black;
+    display: block;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%); /* Adjust for centering */
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    padding: 0.5rem;
+    z-index: 10;
+    
+    white-space: normal; /* Allow wrapping */
+    word-wrap: break-word; /* Ensure long words wrap */
+    max-width: 100vw; /* Prevent width from exceeding the viewport */
+    box-sizing: border-box; /* Include padding and border in width calculation */
+    overflow-wrap: break-word; /* Break long words if necessary */
+}
+.annotation.hidden {
+    display: none;
+}
+
+div[dir='rtl'] .parsing:not(:last-child), 
+div[dir='rtl'] .lexical-form:not(:last-child), 
+div[dir='rtl'] .gloss:not(:last-child) 
+{
+    margin-left: 0.5rem;
+}
+
+div[dir='ltr'] .parsing:not(:last-child), 
+div[dir='ltr'] .lexical-form:not(:last-child), 
+div[dir='ltr'] .gloss:not(:last-child) 
+{
+    margin-right: 0.5rem;
+}
+
+.gloss {
+    font-style: italic;
+}
+
+.lexical-form {
+    font-family: __BIBLICAL_FONT__, Georgia, serif;
+}
+
+.wd {
+    white-space: nowrap;
+}
+
+/* Mostly motivated by the TOC */
+h1 {
+    font-size: 1.5em;
+}
+
+h2 {
+    font-size: 1em;
+}
+
+table.toc {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 16px;
+    text-align: left;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .toc th, .toc td {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+  }
+  
+  .toc th {
+    font-weight: normal;
+  }
+  
+  .toc td {
+    text-align: center;
+  }
+    
+  .toc tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  
+  .toc tr:hover {
+    background-color: #e9e9e9;
+  }
+  
+  .toc a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  
+  .toc a:hover {
+    text-decoration: underline;
+  }
+  
+  .toc h2 {
+    font-size: 20px;
+    margin-bottom: 10px;
+    color: #333;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 600px) {
+    .toc {
+      font-size: 14px;
+    }
+  
+    .toc th, .toc td {
+      padding: 10px;
+    }
+  }
+
+ul.chapters > li {
+	list-style: none;
+}
+
+ul.chapters > li > a {
+    color: #000;
+    text-decoration: none;
+    font-weight: bold;
+}`;
+
 ;// CONCATENATED MODULE: ../application/models/PublicationConfiguration.ts
 
 
@@ -33349,8 +33524,8 @@ class PublicationConfiguration {
         }
         return pc;
     }
-    static default_latex_template = default_latex_template_namespaceObject.latexTemplate;
-    static default_css_template = style_namespaceObject.cssTemplate;
+    static default_latex_template = latexTemplate;
+    static default_css_template = cssTemplate;
 }
 
 ;// CONCATENATED MODULE: ../application/models/parsing-formats/NTConciseParsingFormatStrings.ts
@@ -35253,10 +35428,12 @@ ${this.produceCanonTable(NT)}
                         result += `<td></td>`;
                     }
                     if (this.hasHtml(cd.name, book)) {
+                        const chapterFilename = this.htmlIndex.get(cd.name)?.get(book)?.filename?.replace('.html', '-chapters.html');
                         result += `<td><a href="${this.htmlIndex.get(cd.name)?.get(book)?.filename}">HTML</a></td>`;
+                        result += `<td><a href="${chapterFilename}">HTML (by chapter)</a></td>`;
                     }
                     else {
-                        result += `<td></td>`;
+                        result += `<td></td><td></td>`;
                     }
                     result += `</tr>`;
                 }
@@ -35315,8 +35492,10 @@ class IndexBuilder {
             return response.data
                 .filter((item) => item.type === 'file' &&
                 (item.name.endsWith('.pdf') || item.name.endsWith('.html')) &&
-                item.name !== 'index.html' /// don't include the index file itself
-            )
+                /// don't include the index file itself and does not end with '-chapters.html' or with '-1.html', '-2.html', '-3.html' etc
+                item.name !== 'index.html' &&
+                !item.name.endsWith('-chapters.html') &&
+                !/-\d+\.html$/.test(item.name))
                 .map((item) => item.name);
         }
         else {
@@ -35368,7 +35547,7 @@ class IndexBuilder {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>${this.project.title}</title>
-<link rel="stylesheet" href="style.css"/>
+<link rel="stylesheet" href="default/style.css"/>
 </head>
 <body>
 <h1>${this.project.title}</h1>

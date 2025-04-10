@@ -11,7 +11,7 @@ Build & deploy:
 ```
 ncc build src/index.ts
 git add .
-git commit -m 'update'
+git commit -m 'add html-by-chapters'
 git tag -f production
 git push origin production -f
 ```

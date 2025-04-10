@@ -93,9 +93,11 @@ ${this.produceCanonTable(NT)}
             result += `<td></td>`
           }
           if (this.hasHtml(cd.name, book)) {
+            const chapterFilename = this.htmlIndex.get(cd.name)?.get(book)?.filename?.replace('.html', '-chapters.html')
             result += `<td><a href="${this.htmlIndex.get(cd.name)?.get(book)?.filename}">HTML</a></td>`
+            result += `<td><a href="${chapterFilename}">HTML (by chapter)</a></td>`
           } else {
-            result += `<td></td>`
+            result += `<td></td><td></td>`
           }
           result += `</tr>`
         }

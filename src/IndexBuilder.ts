@@ -68,7 +68,10 @@ export class IndexBuilder {
           (item) =>
             item.type === 'file' &&
             (item.name.endsWith('.pdf') || item.name.endsWith('.html')) &&
-            item.name !== 'index.html' /// don't include the index file itself
+            /// don't include the index file itself and does not end with '-chapters.html' or with '-1.html', '-2.html', '-3.html' etc
+            item.name !== 'index.html' &&
+            !item.name.endsWith('-chapters.html') &&
+            !/-\d+\.html$/.test(item.name)
         )
         .map((item) => item.name)
     } else {
