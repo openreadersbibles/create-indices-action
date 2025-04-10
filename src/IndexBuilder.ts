@@ -110,6 +110,7 @@ export class IndexBuilder {
   }
 
   async createRootIndex(folders: string[]): Promise<GitHubFile> {
+    core.debug(`Creating root index for ${this.repo}:`)
     if (!this.project) {
       throw new Error('Project configuration is not loaded.')
     }
@@ -175,6 +176,7 @@ ${list}
       // Step 2: Create blobs for each file
       const blobs = await Promise.all(
         files.map(async (file) => {
+          core.info(`Adding file ${file.path} to repository ${repo}`);
           const blobResponse = await this.octokit.request(
             'POST /repos/{owner}/{repo}/git/blobs',
             {

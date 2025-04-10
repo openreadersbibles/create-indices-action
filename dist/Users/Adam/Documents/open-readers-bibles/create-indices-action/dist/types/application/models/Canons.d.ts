@@ -1,10 +1,12 @@
-import { Canon, UbsBook, VerseReference } from "./VerseReference";
+import { Canon, UbsBook, VerseReference } from "./VerseReference.js";
+type CanonNumberLookup = Partial<Record<UbsBook, number>>;
+type CanonNumberArrayLookup = Partial<Record<UbsBook, number[]>>;
 export declare class CanonData {
     private _name;
     private _books;
     private _max_chapter;
     private _max_verse;
-    constructor(name: Canon, books: UbsBook[], max_chapter: any, max_verse: any);
+    constructor(name: Canon, books: UbsBook[], max_chapter: CanonNumberLookup, max_verse: CanonNumberArrayLookup);
     get name(): Canon;
     get books(): UbsBook[];
     hasBook(book: UbsBook): boolean;
@@ -24,3 +26,4 @@ export declare const CANON_NAMES: Canon[];
 export declare const CANONS: CanonData[];
 export declare const ALL_BOOK_CODES: UbsBook[];
 export declare function canonicalOrderSort(a: UbsBook, b: UbsBook): number;
+export {};

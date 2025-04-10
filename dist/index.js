@@ -29812,2511 +29812,6 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
-/***/ 961:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ALL_BOOK_CODES = exports.CANONS = exports.CANON_NAMES = exports.LXX = exports.OT = exports.NT = exports.CanonData = void 0;
-exports.getCanon = getCanon;
-exports.canonicalOrderSort = canonicalOrderSort;
-const VerseReference_1 = __nccwpck_require__(411);
-class CanonData {
-    _name;
-    _books;
-    _max_chapter;
-    _max_verse;
-    constructor(name, books, max_chapter, max_verse) {
-        this._name = name;
-        this._books = books;
-        this._max_chapter = max_chapter;
-        this._max_verse = max_verse;
-    }
-    get name() {
-        return this._name;
-    }
-    get books() {
-        return this._books;
-    }
-    hasBook(book) {
-        return this._books.includes(book);
-    }
-    fallbackVerseReference() {
-        return new VerseReference_1.VerseReference(this._books[0], 1, 1, this._name);
-    }
-    nextBook(book) {
-        let index = this._books.indexOf(book);
-        if (index < 0) {
-            return 'GEN';
-        }
-        if (index < this._books.length - 1) {
-            return this._books[index + 1];
-        }
-        return this._books[0];
-    }
-    previousBook(book) {
-        let index = this._books.indexOf(book);
-        if (index < 0) {
-            return 'GEN';
-        }
-        if (index > 0) {
-            return this._books[index - 1];
-        }
-        return this._books[this._books.length - 1];
-    }
-    lastChapter(book) {
-        return this._max_chapter[book];
-    }
-    lastVerse(book, chapter) {
-        let versesN = this._max_verse[book];
-        if (versesN.length > (chapter - 1)) {
-            return versesN[chapter - 1];
-        }
-        else {
-            console.error(`BookNavigator.lastVerse: no data for ${book} ${chapter}.`);
-            return undefined;
-        }
-    }
-    nextVerse(reference) {
-        let returnValue = new VerseReference_1.VerseReference(reference.ubs_book, reference.chapter, reference.verse + 1, this._name);
-        let lastVerseInChapter = this.lastVerse(returnValue.ubs_book, returnValue.chapter);
-        if (lastVerseInChapter === undefined) {
-            console.error(`BookNavigator.nextVerse: lastVerseInChapter is null for ${reference.ubs_book} ${reference.chapter}`);
-            return reference;
-        }
-        if (returnValue.verse > lastVerseInChapter) {
-            returnValue.chapter = reference.chapter + 1;
-            returnValue.verse = 1;
-        }
-        let lastChapter = this.lastChapter(returnValue.ubs_book);
-        if (lastChapter === undefined) {
-            console.error(`BookNavigator.nextVerse: lastChapter is null for ${reference.ubs_book}`);
-            return reference;
-        }
-        if (returnValue.chapter > lastChapter) {
-            let nextBook = this.nextBook(returnValue.ubs_book);
-            returnValue.ubs_book = nextBook;
-            returnValue.chapter = 1;
-            returnValue.verse = 1;
-        }
-        return returnValue;
-    }
-    previousVerse(reference) {
-        /// the only real wrap-around situation is if we're in 1:1
-        if (reference.chapter === 1 && reference.verse === 1) {
-            let previousBook = this.previousBook(reference.ubs_book);
-            let lastChapter = this.lastChapter(previousBook);
-            if (lastChapter === undefined) {
-                console.error(`BookNavigator.previousVerse: lastChapter is undefined for ${reference.ubs_book}`);
-                return reference;
-            }
-            let lastVerseInChapter = this.lastVerse(previousBook, lastChapter);
-            if (lastVerseInChapter === undefined) {
-                console.error(`BookNavigator.previousVerse: lastVerseInChapter is undefined for ${reference.ubs_book} ${reference.chapter}`);
-                return reference;
-            }
-            return new VerseReference_1.VerseReference(previousBook, lastChapter, lastVerseInChapter, this._name);
-        }
-        let returnValue = new VerseReference_1.VerseReference(reference.ubs_book, reference.chapter, reference.verse - 1, this._name);
-        if (returnValue.verse < 1) {
-            returnValue.chapter = reference.chapter - 1;
-            let lastVerseInChapter = this.lastVerse(returnValue.ubs_book, returnValue.chapter);
-            if (lastVerseInChapter === undefined) {
-                console.error(`BookNavigator.previousVerse: lastVerseInChapter is null for ${reference.ubs_book} ${reference.chapter}`);
-                return reference;
-            }
-            returnValue.verse = lastVerseInChapter;
-        }
-        return returnValue;
-    }
-}
-exports.CanonData = CanonData;
-exports.NT = new CanonData("NT", ['MAT', 'MRK', 'LUK', 'JHN', 'ACT', 'ROM', '1CO', '2CO', 'GAL', 'EPH', 'PHP', 'COL', '1TH', '2TH', '1TI', '2TI', 'TIT', 'PHM', 'HEB', 'JAS', '1PE', '2PE', '1JN', '2JN', '3JN', 'JUD', 'REV'], { "MAT": 28, "MRK": 16, "LUK": 24, "JHN": 21, "ACT": 28, "ROM": 16, "1CO": 16, "2CO": 13, "GAL": 6, "EPH": 6, "PHP": 4, "COL": 4, "1TH": 5, "2TH": 3, "1TI": 6, "2TI": 4, "TIT": 3, "PHM": 1, "HEB": 13, "JAS": 5, "1PE": 5, "2PE": 3, "1JN": 5, "2JN": 1, "3JN": 1, "JUD": 1, "REV": 22 }, { "1CO": [31, 16, 23, 21, 13, 20, 40, 13, 27, 33, 34, 31, 13, 40, 58, 24], "1JN": [10, 29, 24, 21, 21], "1PE": [25, 25, 22, 19, 14], "1TH": [10, 20, 13, 18, 28], "1TI": [20, 15, 16, 16, 25, 21], "2CO": [24, 17, 18, 18, 21, 18, 16, 24, 15, 18, 33, 21, 13], "2JN": [13], "2PE": [21, 22, 18], "2TH": [12, 17, 18], "2TI": [18, 26, 17, 22], "3JN": [15], "ACT": [26, 47, 26, 37, 42, 15, 60, 40, 43, 48, 30, 25, 52, 28, 41, 40, 34, 28, 40, 38, 40, 30, 35, 27, 27, 32, 44, 31], "COL": [29, 23, 25, 18], "EPH": [23, 22, 21, 32, 33, 24], "GAL": [24, 21, 29, 31, 26, 18], "HEB": [14, 18, 19, 16, 14, 20, 28, 13, 28, 39, 40, 29, 25], "JAS": [27, 26, 18, 17, 20], "JHN": [51, 25, 36, 54, 47, 71, 52, 59, 41, 42, 57, 50, 38, 31, 27, 33, 26, 40, 42, 31, 25], "JUD": [25], "LUK": [80, 52, 38, 44, 39, 49, 50, 56, 62, 42, 54, 59, 35, 35, 32, 31, 37, 43, 48, 47, 38, 71, 56, 53], "MRK": [45, 28, 35, 41, 43, 56, 37, 38, 50, 52, 33, 44, 37, 72, 47, 20], "MAT": [25, 23, 17, 25, 48, 34, 29, 34, 38, 42, 30, 50, 58, 36, 39, 28, 27, 35, 30, 34, 46, 46, 39, 51, 46, 75, 66, 20], "PHP": [30, 30, 21, 23], "PHM": [25], "REV": [20, 29, 22, 11, 14, 17, 17, 13, 21, 11, 19, 18, 18, 20, 8, 21, 18, 24, 21, 15, 27, 21], "ROM": [32, 29, 31, 25, 21, 23, 25, 39, 33, 21, 36, 21, 14, 23, 33, 24], "TIT": [16, 15, 15] });
-exports.OT = new CanonData("OT", ['GEN', 'EXO', 'LEV', 'NUM', 'DEU', 'JOS', 'JDG', 'RUT', '1SA', '2SA', '1KI', '2KI', '1CH', '2CH', 'EZR', 'NEH', 'EST', 'JOB', 'PSA', 'PRO', 'ECC', 'SNG', 'ISA', 'JER', 'LAM', 'EZK', 'DAN', 'HOS', 'JOL', 'AMO', 'OBA', 'JON', 'MIC', 'NAM', 'HAB', 'ZEP', 'HAG', 'ZEC', 'MAL'], { "GEN": 50, "EXO": 40, "LEV": 27, "NUM": 36, "DEU": 34, "JOS": 24, "JDG": 21, "1SA": 31, "2SA": 24, "1KI": 22, "2KI": 25, "ISA": 66, "JER": 52, "EZK": 48, "HOS": 14, "JOL": 4, "AMO": 9, "OBA": 1, "JON": 4, "MIC": 7, "NAM": 3, "HAB": 3, "ZEP": 3, "HAG": 2, "ZEC": 14, "MAL": 3, "PSA": 150, "JOB": 42, "PRO": 31, "RUT": 4, "SNG": 8, "ECC": 12, "LAM": 5, "EST": 10, "DAN": 12, "EZR": 10, "NEH": 13, "1CH": 29, "2CH": 36 }, { "1CH": [54, 55, 24, 43, 41, 66, 40, 40, 44, 14, 47, 41, 14, 17, 29, 43, 27, 17, 19, 8, 30, 19, 32, 31, 31, 32, 34, 21, 30], "1KI": [53, 46, 28, 20, 32, 38, 51, 66, 28, 29, 43, 33, 34, 31, 34, 34, 24, 46, 21, 43, 29, 54], "1SA": [28, 36, 21, 22, 12, 21, 17, 22, 27, 27, 15, 25, 23, 52, 35, 23, 58, 30, 24, 42, 16, 23, 28, 23, 44, 25, 12, 25, 11, 31, 13], "2CH": [18, 17, 17, 22, 14, 42, 22, 18, 31, 19, 23, 16, 23, 14, 19, 14, 19, 34, 11, 37, 20, 12, 21, 27, 28, 23, 9, 27, 36, 27, 21, 33, 25, 33, 27, 23], "2KI": [18, 25, 27, 44, 27, 33, 20, 29, 37, 36, 20, 22, 25, 29, 38, 20, 41, 37, 37, 21, 26, 20, 37, 20, 30], "2SA": [27, 32, 39, 12, 25, 23, 29, 18, 13, 19, 27, 31, 39, 33, 37, 23, 29, 32, 44, 26, 22, 51, 39, 25], "AMO": [15, 16, 15, 13, 27, 14, 17, 14, 15], "DAN": [21, 49, 33, 34, 30, 29, 28, 27, 27, 21, 45, 13], "DEU": [46, 37, 29, 49, 33, 25, 26, 20, 29, 22, 32, 31, 19, 29, 23, 22, 20, 22, 21, 20, 23, 29, 26, 22, 19, 19, 26, 69, 28, 20, 30, 52, 29, 12], "ECC": [18, 26, 22, 17, 19, 12, 29, 17, 18, 20, 10, 14], "EST": [22, 23, 15, 17, 14, 14, 10, 17, 32, 3], "EXO": [22, 25, 22, 31, 23, 30, 29, 28, 35, 29, 10, 51, 22, 31, 27, 36, 16, 27, 25, 26, 37, 30, 33, 18, 40, 37, 21, 43, 46, 38, 18, 35, 23, 35, 35, 38, 29, 31, 43, 38], "EZK": [28, 10, 27, 17, 17, 14, 27, 18, 11, 22, 25, 28, 23, 23, 8, 63, 24, 32, 14, 44, 37, 31, 49, 27, 17, 21, 36, 26, 21, 26, 18, 32, 33, 31, 15, 38, 28, 23, 29, 49, 26, 20, 27, 31, 25, 24, 23, 35], "EZR": [11, 70, 13, 24, 17, 22, 28, 36, 15, 44], "GEN": [31, 25, 24, 26, 32, 22, 24, 22, 29, 32, 32, 20, 18, 24, 21, 16, 27, 33, 38, 18, 34, 24, 20, 67, 34, 35, 46, 22, 35, 43, 54, 33, 20, 31, 29, 43, 36, 30, 23, 23, 57, 38, 34, 34, 28, 34, 31, 22, 33, 26], "HAB": [17, 20, 19], "HAG": [15, 23], "HOS": [9, 25, 5, 19, 15, 11, 16, 14, 17, 15, 11, 15, 15, 10], "ISA": [31, 22, 26, 6, 30, 13, 25, 23, 20, 34, 16, 6, 22, 32, 9, 14, 14, 7, 25, 6, 17, 25, 18, 23, 12, 21, 13, 29, 24, 33, 9, 20, 24, 17, 10, 22, 38, 22, 8, 31, 29, 25, 28, 28, 25, 13, 15, 22, 26, 11, 23, 15, 12, 17, 13, 12, 21, 14, 21, 22, 11, 12, 19, 11, 25, 24], "JDG": [36, 23, 31, 24, 31, 40, 25, 35, 57, 18, 40, 15, 25, 20, 20, 31, 13, 31, 30, 48, 25], "JER": [19, 37, 25, 31, 31, 30, 34, 23, 25, 25, 23, 17, 27, 22, 21, 21, 27, 23, 15, 18, 14, 30, 40, 10, 38, 24, 22, 17, 32, 24, 40, 44, 26, 22, 19, 32, 21, 28, 18, 16, 18, 22, 13, 30, 5, 28, 7, 47, 39, 46, 64, 34], "JOB": [22, 13, 26, 21, 27, 30, 21, 22, 35, 22, 20, 25, 28, 22, 35, 22, 16, 21, 29, 29, 34, 30, 17, 25, 6, 14, 23, 28, 25, 31, 40, 22, 33, 37, 16, 33, 24, 41, 30, 32, 26, 17], "JOL": [20, 27, 5, 21], "JON": [16, 11, 10, 11], "JOS": [18, 24, 17, 24, 15, 27, 26, 35, 27, 43, 23, 24, 33, 15, 63, 10, 18, 28, 51, 9, 45, 34, 16, 33], "LAM": [22, 22, 66, 22, 22], "LEV": [17, 16, 17, 35, 26, 23, 38, 36, 24, 20, 47, 8, 59, 57, 33, 34, 16, 30, 37, 27, 24, 33, 44, 23, 55, 46, 34], "MAL": [14, 17, 24], "MIC": [16, 13, 12, 14, 14, 16, 20], "NAM": [14, 14, 19], "NEH": [11, 20, 38, 17, 19, 19, 72, 18, 37, 40, 36, 47, 31], "NUM": [54, 34, 51, 49, 31, 27, 89, 26, 23, 36, 35, 16, 33, 45, 41, 35, 28, 32, 22, 29, 35, 41, 30, 25, 19, 65, 23, 31, 39, 17, 54, 42, 56, 29, 34, 13], "OBA": [21], "PRO": [33, 22, 35, 27, 23, 35, 27, 36, 18, 32, 31, 28, 25, 35, 33, 33, 28, 24, 29, 30, 31, 29, 35, 34, 28, 28, 27, 28, 27, 33, 31], "PSA": [6, 12, 9, 9, 13, 11, 18, 10, 21, 18, 7, 9, 6, 7, 5, 11, 15, 51, 15, 10, 14, 32, 6, 10, 22, 12, 14, 9, 11, 13, 25, 11, 22, 23, 28, 13, 40, 23, 14, 18, 14, 12, 5, 27, 18, 12, 10, 15, 21, 23, 21, 11, 7, 9, 24, 14, 12, 12, 18, 14, 9, 13, 12, 11, 14, 20, 8, 36, 37, 6, 24, 20, 28, 23, 11, 13, 21, 72, 13, 20, 17, 8, 19, 13, 14, 17, 7, 19, 53, 17, 16, 16, 5, 23, 11, 13, 12, 9, 9, 5, 8, 29, 22, 35, 45, 48, 43, 14, 31, 7, 10, 10, 9, 8, 18, 19, 2, 29, 176, 7, 8, 9, 4, 8, 5, 6, 5, 6, 8, 8, 3, 18, 3, 3, 21, 26, 9, 8, 24, 14, 10, 8, 12, 15, 21, 10, 20, 14, 9, 6], "RUT": [22, 23, 18, 22], "SNG": [17, 17, 11, 16, 16, 12, 14, 14], "ZEC": [17, 17, 10, 14, 11, 15, 14, 23, 17, 12, 17, 14, 9, 21], "ZEP": [18, 15, 20] });
-/// TODO HACK these are just the OT values, and are surely wrong
-exports.LXX = new CanonData("LXX", ['GEN', 'EXO', 'LEV', 'NUM', 'DEU', 'JOS', 'JDG', 'RUT', '1SA', '2SA', '1KI', '2KI', '1CH', '2CH', 'EZR', 'NEH', 'EST', 'JOB', 'PSA', 'PRO', 'ECC', 'SNG', 'ISA', 'JER', 'LAM', 'EZK', 'DAN', 'HOS', 'JOL', 'AMO', 'OBA', 'JON', 'MIC', 'NAM', 'HAB', 'ZEP', 'HAG', 'ZEC', 'MAL'], { "GEN": 50, "EXO": 40, "LEV": 27, "NUM": 36, "DEU": 34, "JOS": 24, "JDG": 21, "1SA": 31, "2SA": 24, "1KI": 22, "2KI": 25, "ISA": 66, "JER": 52, "EZK": 48, "HOS": 14, "JOL": 4, "AMO": 9, "OBA": 1, "JON": 4, "MIC": 7, "NAM": 3, "HAB": 3, "ZEP": 3, "HAG": 2, "ZEC": 14, "MAL": 3, "PSA": 150, "JOB": 42, "PRO": 31, "RUT": 4, "SNG": 8, "ECC": 12, "LAM": 5, "EST": 10, "DAN": 12, "EZR": 10, "NEH": 13, "1CH": 29, "2CH": 36 }, { "1CH": [54, 55, 24, 43, 41, 66, 40, 40, 44, 14, 47, 41, 14, 17, 29, 43, 27, 17, 19, 8, 30, 19, 32, 31, 31, 32, 34, 21, 30], "1KI": [53, 46, 28, 20, 32, 38, 51, 66, 28, 29, 43, 33, 34, 31, 34, 34, 24, 46, 21, 43, 29, 54], "1SA": [28, 36, 21, 22, 12, 21, 17, 22, 27, 27, 15, 25, 23, 52, 35, 23, 58, 30, 24, 42, 16, 23, 28, 23, 44, 25, 12, 25, 11, 31, 13], "2CH": [18, 17, 17, 22, 14, 42, 22, 18, 31, 19, 23, 16, 23, 14, 19, 14, 19, 34, 11, 37, 20, 12, 21, 27, 28, 23, 9, 27, 36, 27, 21, 33, 25, 33, 27, 23], "2KI": [18, 25, 27, 44, 27, 33, 20, 29, 37, 36, 20, 22, 25, 29, 38, 20, 41, 37, 37, 21, 26, 20, 37, 20, 30], "2SA": [27, 32, 39, 12, 25, 23, 29, 18, 13, 19, 27, 31, 39, 33, 37, 23, 29, 32, 44, 26, 22, 51, 39, 25], "AMO": [15, 16, 15, 13, 27, 14, 17, 14, 15], "DAN": [21, 49, 33, 34, 30, 29, 28, 27, 27, 21, 45, 13], "DEU": [46, 37, 29, 49, 33, 25, 26, 20, 29, 22, 32, 31, 19, 29, 23, 22, 20, 22, 21, 20, 23, 29, 26, 22, 19, 19, 26, 69, 28, 20, 30, 52, 29, 12], "ECC": [18, 26, 22, 17, 19, 12, 29, 17, 18, 20, 10, 14], "EST": [22, 23, 15, 17, 14, 14, 10, 17, 32, 3], "EXO": [22, 25, 22, 31, 23, 30, 29, 28, 35, 29, 10, 51, 22, 31, 27, 36, 16, 27, 25, 26, 37, 30, 33, 18, 40, 37, 21, 43, 46, 38, 18, 35, 23, 35, 35, 38, 29, 31, 43, 38], "EZK": [28, 10, 27, 17, 17, 14, 27, 18, 11, 22, 25, 28, 23, 23, 8, 63, 24, 32, 14, 44, 37, 31, 49, 27, 17, 21, 36, 26, 21, 26, 18, 32, 33, 31, 15, 38, 28, 23, 29, 49, 26, 20, 27, 31, 25, 24, 23, 35], "EZR": [11, 70, 13, 24, 17, 22, 28, 36, 15, 44], "GEN": [31, 25, 24, 26, 32, 22, 24, 22, 29, 32, 32, 20, 18, 24, 21, 16, 27, 33, 38, 18, 34, 24, 20, 67, 34, 35, 46, 22, 35, 43, 54, 33, 20, 31, 29, 43, 36, 30, 23, 23, 57, 38, 34, 34, 28, 34, 31, 22, 33, 26], "HAB": [17, 20, 19], "HAG": [15, 23], "HOS": [9, 25, 5, 19, 15, 11, 16, 14, 17, 15, 11, 15, 15, 10], "ISA": [31, 22, 26, 6, 30, 13, 25, 23, 20, 34, 16, 6, 22, 32, 9, 14, 14, 7, 25, 6, 17, 25, 18, 23, 12, 21, 13, 29, 24, 33, 9, 20, 24, 17, 10, 22, 38, 22, 8, 31, 29, 25, 28, 28, 25, 13, 15, 22, 26, 11, 23, 15, 12, 17, 13, 12, 21, 14, 21, 22, 11, 12, 19, 11, 25, 24], "JDG": [36, 23, 31, 24, 31, 40, 25, 35, 57, 18, 40, 15, 25, 20, 20, 31, 13, 31, 30, 48, 25], "JER": [19, 37, 25, 31, 31, 30, 34, 23, 25, 25, 23, 17, 27, 22, 21, 21, 27, 23, 15, 18, 14, 30, 40, 10, 38, 24, 22, 17, 32, 24, 40, 44, 26, 22, 19, 32, 21, 28, 18, 16, 18, 22, 13, 30, 5, 28, 7, 47, 39, 46, 64, 34], "JOB": [22, 13, 26, 21, 27, 30, 21, 22, 35, 22, 20, 25, 28, 22, 35, 22, 16, 21, 29, 29, 34, 30, 17, 25, 6, 14, 23, 28, 25, 31, 40, 22, 33, 37, 16, 33, 24, 41, 30, 32, 26, 17], "JOL": [20, 27, 5, 21], "JON": [16, 11, 10, 11], "JOS": [18, 24, 17, 24, 15, 27, 26, 35, 27, 43, 23, 24, 33, 15, 63, 10, 18, 28, 51, 9, 45, 34, 16, 33], "LAM": [22, 22, 66, 22, 22], "LEV": [17, 16, 17, 35, 26, 23, 38, 36, 24, 20, 47, 8, 59, 57, 33, 34, 16, 30, 37, 27, 24, 33, 44, 23, 55, 46, 34], "MAL": [14, 17, 24], "MIC": [16, 13, 12, 14, 14, 16, 20], "NAM": [14, 14, 19], "NEH": [11, 20, 38, 17, 19, 19, 72, 18, 37, 40, 36, 47, 31], "NUM": [54, 34, 51, 49, 31, 27, 89, 26, 23, 36, 35, 16, 33, 45, 41, 35, 28, 32, 22, 29, 35, 41, 30, 25, 19, 65, 23, 31, 39, 17, 54, 42, 56, 29, 34, 13], "OBA": [21], "PRO": [33, 22, 35, 27, 23, 35, 27, 36, 18, 32, 31, 28, 25, 35, 33, 33, 28, 24, 29, 30, 31, 29, 35, 34, 28, 28, 27, 28, 27, 33, 31], "PSA": [6, 12, 9, 9, 13, 11, 18, 10, 21, 18, 7, 9, 6, 7, 5, 11, 15, 51, 15, 10, 14, 32, 6, 10, 22, 12, 14, 9, 11, 13, 25, 11, 22, 23, 28, 13, 40, 23, 14, 18, 14, 12, 5, 27, 18, 12, 10, 15, 21, 23, 21, 11, 7, 9, 24, 14, 12, 12, 18, 14, 9, 13, 12, 11, 14, 20, 8, 36, 37, 6, 24, 20, 28, 23, 11, 13, 21, 72, 13, 20, 17, 8, 19, 13, 14, 17, 7, 19, 53, 17, 16, 16, 5, 23, 11, 13, 12, 9, 9, 5, 8, 29, 22, 35, 45, 48, 43, 14, 31, 7, 10, 10, 9, 8, 18, 19, 2, 29, 176, 7, 8, 9, 4, 8, 5, 6, 5, 6, 8, 8, 3, 18, 3, 3, 21, 26, 9, 8, 24, 14, 10, 8, 12, 15, 21, 10, 20, 14, 9, 6], "RUT": [22, 23, 18, 22], "SNG": [17, 17, 11, 16, 16, 12, 14, 14], "ZEC": [17, 17, 10, 14, 11, 15, 14, 23, 17, 12, 17, 14, 9, 21], "ZEP": [18, 15, 20] });
-function getCanon(canon) {
-    switch (canon) {
-        case "NT":
-            return exports.NT;
-        case "OT":
-            return exports.OT;
-        case "LXX":
-            return exports.LXX;
-    }
-}
-exports.CANON_NAMES = ['OT', 'NT', 'LXX'];
-exports.CANONS = [exports.OT, exports.NT, exports.LXX];
-exports.ALL_BOOK_CODES = exports.OT.books.concat(exports.NT.books.concat(exports.LXX.books));
-function canonicalOrderSort(a, b) {
-    let aIndex = exports.ALL_BOOK_CODES.indexOf(a);
-    let bIndex = exports.ALL_BOOK_CODES.indexOf(b);
-    return aIndex - bIndex;
-}
-
-
-/***/ }),
-
-/***/ 7000:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-var __webpack_unused_export__;
-
-__webpack_unused_export__ = ({ value: true });
-exports.IF = __webpack_unused_export__ = void 0;
-const Canons_1 = __nccwpck_require__(961);
-const VerseReference_1 = __nccwpck_require__(411);
-const PublicationConfiguration_1 = __nccwpck_require__(801);
-const ProjectParsingFormats_1 = __nccwpck_require__(7936);
-__webpack_unused_export__ = ['admin', 'member', 'disabled'];
-class ProjectConfiguration {
-    static Default = "default";
-    _project_id;
-    _project_title = "";
-    _project_description = "";
-    _layout_direction = "ltr";
-    _frequency_thresholds = new Map();
-    _bookNames = new Map();
-    _canons = [];
-    _roles = new Map();
-    _allow_joins = true;
-    _font_families = "";
-    _font_size;
-    _parsingFormats = new ProjectParsingFormats_1.ProjectParsingFormats();
-    _numerals;
-    // private _latex_templates: Map<string, string> = new Map<string, string>();
-    _publication_configurations = new Map();
-    constructor(project_id) {
-        this._project_id = project_id;
-        /// it's better to have default books names
-        this.initializeBookNamesToLatin();
-        this._canons = ["OT", "NT"];
-        this._frequency_thresholds.set("NT", 30);
-        this._frequency_thresholds.set("OT", 50);
-        this._numerals = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
-        /// ensure that there is a default publication configuration
-        this._publication_configurations.set(ProjectConfiguration.Default, new PublicationConfiguration_1.PublicationConfiguration(ProjectConfiguration.Default, this));
-    }
-    initializeBookNamesToLatin() {
-        Canons_1.CANONS.forEach(canon => {
-            canon.books.forEach(book => {
-                this._bookNames.set(book, VerseReference_1.VerseReference.ubsBookToLatin(book));
-            });
-        });
-    }
-    get layout_direction() {
-        return this._layout_direction;
-    }
-    get title() {
-        return this._project_title;
-    }
-    get description() {
-        return this._project_description;
-    }
-    get allow_joins() {
-        return this._allow_joins;
-    }
-    get id() {
-        return this._project_id;
-    }
-    get canons() {
-        return this._canons;
-    }
-    get parsingFormats() {
-        return this._parsingFormats;
-    }
-    get font_families() {
-        return this._font_families;
-    }
-    get font_size() {
-        return this._font_size;
-    }
-    get numerals() {
-        return this._numerals;
-    }
-    set project_id(value) {
-        this._project_id = value;
-    }
-    set title(value) {
-        this._project_title = value;
-    }
-    set description(value) {
-        this._project_description = value;
-    }
-    set allow_joins(value) {
-        this._allow_joins = value;
-    }
-    set layout_direction(value) {
-        this._layout_direction = value;
-    }
-    set frequency_thresholds(value) {
-        this._frequency_thresholds = value;
-    }
-    set bookNames(value) {
-        this._bookNames = value;
-    }
-    get bookNames() {
-        return this._bookNames;
-    }
-    set canons(value) {
-        this._canons = value;
-    }
-    get members() {
-        return Array.from(this._roles.keys());
-    }
-    set font_families(ff) {
-        this._font_families = ff;
-    }
-    set font_size(size) {
-        this._font_size = size;
-    }
-    set numerals(numerals) {
-        this._numerals = numerals;
-    }
-    replaceNumerals(str) {
-        return ProjectConfiguration.performNumeralReplacement(str, this._numerals);
-    }
-    member(user_id) {
-        return this._roles.get(user_id);
-    }
-    setMember(member) {
-        this._roles.set(member.user_id, member);
-    }
-    userRole(user_id) {
-        return this._roles.get(user_id)?.user_role;
-    }
-    hasCanon(canon) {
-        return this._canons.indexOf(canon) !== -1;
-    }
-    fallbackCanon() {
-        return this._canons[0];
-    }
-    getFrequencyThreshold(canon) {
-        /// default to 50 (mostly just to satisfy typescript)
-        return this._frequency_thresholds.get(canon) || 50;
-    }
-    formatVerseReference(ref) {
-        return `${this.getBookName(ref.ubs_book)} ${ref.chapter}:${ref.verse}`;
-    }
-    getBookName(book) {
-        return this._bookNames.get(book) || `[Unknown: ${book}]`;
-    }
-    static performNumeralReplacement(str, numerals) {
-        if (numerals.length === 10) {
-            for (let i = 0; i < 10; i++) {
-                str = str.replace(new RegExp(i.toString(), "g"), numerals[i]);
-            }
-        }
-        else {
-            console.error("Numerals array is not of length 10", numerals);
-        }
-        return str;
-    }
-    /// 2025-03-21: I can't figure how why this would ever be a good funciton to use (with the fallback canon)
-    getParsingFormat(key) {
-        return this.parsingFormats.getParsingFormat(this.fallbackCanon(), key);
-    }
-    setParsingFormat(value) {
-        this.parsingFormats.setParsingFormat(value.canon, value.id, value);
-    }
-    get repositoryName() {
-        return ProjectConfiguration.getRepositoryName(this._project_id);
-    }
-    deepCopy() {
-        return ProjectConfiguration.fromRow(this.toObject());
-    }
-    static getRepositoryName(project_id) {
-        return `pub-${project_id}`;
-    }
-    ;
-    get publicationConfigurations() {
-        return this._publication_configurations;
-    }
-    toObject() {
-        let thresholds = {};
-        for (let [canon, threshold] of this._frequency_thresholds) {
-            thresholds[canon] = threshold;
-        }
-        let bookNames = {};
-        for (let [book, name] of this._bookNames) {
-            bookNames[book] = name;
-        }
-        let roles = [];
-        for (let role of this._roles.values()) {
-            roles.push(role);
-        }
-        let configurations = {};
-        this._publication_configurations.forEach((value, key) => {
-            configurations[key] = value.toObject();
-        });
-        return {
-            project_id: this._project_id,
-            project_title: this._project_title,
-            project_description: this._project_description,
-            layout_direction: this._layout_direction,
-            frequency_thresholds: thresholds,
-            bookNames: bookNames,
-            canons: this._canons,
-            roles: roles,
-            allow_joins: this._allow_joins,
-            font_families: this._font_families,
-            font_size: this._font_size,
-            parsing_formats: this._parsingFormats.toObject(),
-            publication_configurations: configurations,
-            numerals: this._numerals,
-        };
-    }
-    static fromRow(row) {
-        let pc = new ProjectConfiguration(row.project_id);
-        pc._project_title = row.project_title;
-        pc._project_description = row.project_description;
-        pc._layout_direction = row.layout_direction;
-        pc._allow_joins = row.allow_joins;
-        pc._font_families = row.font_families;
-        pc._font_size = row.font_size;
-        pc._numerals = row.numerals || [];
-        pc._parsingFormats = ProjectParsingFormats_1.ProjectParsingFormats.fromObject(row.parsing_formats, pc);
-        for (let canon in row.frequency_thresholds) {
-            if (row.frequency_thresholds.hasOwnProperty(canon)) {
-                pc._frequency_thresholds.set(canon, row.frequency_thresholds[canon]);
-            }
-        }
-        for (let code in row.bookNames) {
-            if (row.bookNames.hasOwnProperty(code)) {
-                pc._bookNames.set(code, row.bookNames[code]);
-            }
-        }
-        pc._canons = row.canons;
-        for (let role of row.roles) {
-            pc._roles.set(role.user_id, role);
-        }
-        for (let key in row.publication_configurations) {
-            if (row.publication_configurations.hasOwnProperty(key)) {
-                pc.publicationConfigurations.set(key, PublicationConfiguration_1.PublicationConfiguration.fromRow(row.publication_configurations[key], key, pc));
-            }
-        }
-        return pc;
-    }
-}
-exports.IF = ProjectConfiguration;
-
-
-/***/ }),
-
-/***/ 7936:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ProjectParsingFormats = void 0;
-const ParsingFormat_1 = __nccwpck_require__(3364);
-class ProjectParsingFormats {
-    /// Different canons require different settings
-    _settings = new Map();
-    addCanonSettings(canon, settings) {
-        this._settings.set(canon, settings);
-    }
-    getSettingsForCanon(canon) {
-        return this._settings.get(canon);
-    }
-    isEmpty() {
-        return this._settings.size === 0;
-    }
-    hasFormatForCanon(canon) {
-        return this._settings.has(canon);
-    }
-    getNumberOfConfigurations(canon) {
-        let settings = this.getSettingsForCanon(canon);
-        if (settings === undefined) {
-            return 0;
-        }
-        else {
-            return settings.size;
-        }
-    }
-    getParsingFormat(canon, key) {
-        let settings = this.getSettingsForCanon(canon);
-        if (settings) {
-            return settings.get(key);
-        }
-        return undefined;
-    }
-    getParsingFormatFromId(key) {
-        for (let canonSettings of this._settings.values()) {
-            let format = canonSettings.get(key);
-            if (format) {
-                return format;
-            }
-        }
-        return undefined;
-    }
-    setParsingFormat(canon, key, format) {
-        let settings = this.getSettingsForCanon(canon);
-        if (settings === undefined) {
-            settings = new Map();
-            this.addCanonSettings(canon, settings);
-        }
-        settings.set(key, format);
-    }
-    removeParsingFormat(c, key) {
-        let settings = this.getSettingsForCanon(c);
-        if (settings) {
-            settings.delete(key);
-        }
-    }
-    toObject() {
-        let obj = {};
-        this._settings.forEach((value, canon) => {
-            if (!obj.hasOwnProperty(canon)) {
-                obj[canon] = {};
-            }
-            value.forEach((value, key) => {
-                obj[canon][key] = value.toObject();
-            });
-        });
-        return obj;
-    }
-    static fromObject(obj, project) {
-        let settings = new ProjectParsingFormats();
-        for (let key in obj) {
-            let canon = key;
-            let canonSettings = new Map();
-            let canonObj = obj[key];
-            for (let key in canonObj) {
-                let settings = canonObj[key];
-                canonSettings.set(key, ParsingFormat_1.ParsingFormatFactory.createParsingFormat(settings.id, project.replaceNumerals.bind(project), settings.template, settings.translations));
-            }
-            settings.addCanonSettings(canon, canonSettings);
-        }
-        return settings;
-    }
-}
-exports.ProjectParsingFormats = ProjectParsingFormats;
-
-
-/***/ }),
-
-/***/ 801:
-/***/ ((__unused_webpack_module, exports) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.PublicationConfiguration = void 0;
-class PublicationConfiguration {
-    _project;
-    _id;
-    _footnoteMarkers;
-    _polyglossiaOtherLanguage;
-    _chapterHeader;
-    _publication_project_font = "Charis SIL";
-    _publication_biblical_font = "SBL BibLit";
-    _latex_template;
-    _parsing_formats = new Map();
-    _footnote_style;
-    _css_template;
-    constructor(id, project) {
-        this._id = id;
-        this._project = project;
-        this._footnoteMarkers = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "aa", "bb", "cc", "dd", "ee", "ff", "gg", "hh", "ii", "jj", "kk", "ll", "mm", "nn", "oo", "pp", "qq", "rr", "ss", "tt", "uu", "vv", "ww", "xx", "yy", "zz"];
-        this._polyglossiaOtherLanguage = "english";
-        this._chapterHeader = "Chapter __CHAPTER__";
-        this._footnote_style = "lettered-by-verse";
-        this._latex_template = PublicationConfiguration.default_latex_template;
-        this._css_template = PublicationConfiguration.default_css_template;
-    }
-    get id() {
-        return this._id;
-    }
-    get project() {
-        return this._project;
-    }
-    get footnoteMarkers() {
-        return this._footnoteMarkers;
-    }
-    get polyglossiaOtherLanguage() {
-        return this._polyglossiaOtherLanguage;
-    }
-    get chapterHeader() {
-        return this._chapterHeader;
-    }
-    get parsing_formats() {
-        return this._parsing_formats;
-    }
-    get latex_template() {
-        return this._latex_template;
-    }
-    get publicationProjectFont() {
-        return this._publication_project_font;
-    }
-    get css_template() {
-        return this._css_template;
-    }
-    set css_template(value) {
-        this._css_template = value;
-    }
-    set publicationProjectFont(font) {
-        this._publication_project_font = font;
-    }
-    get publicationBiblicalFont() {
-        return this._publication_biblical_font;
-    }
-    get footnote_style() {
-        return this._footnote_style;
-    }
-    set footnote_style(value) {
-        this._footnote_style = value;
-    }
-    set publicationBiblicalFont(font) {
-        this._publication_biblical_font = font;
-    }
-    set latex_template(value) {
-        this._latex_template = value;
-    }
-    set footnoteMarkers(markers) {
-        this._footnoteMarkers = markers;
-    }
-    set polyglossiaOtherLanguage(other) {
-        this._polyglossiaOtherLanguage = other;
-    }
-    set chapterHeader(header) {
-        this._chapterHeader = header;
-    }
-    get canonsWithoutParsingFormats() {
-        let canons = this._project.canons.filter(c => !this._parsing_formats.has(c));
-        return canons;
-    }
-    get canonsWithParsingFormats() {
-        let canons = this._project.canons.filter(c => this._parsing_formats.has(c));
-        return canons;
-    }
-    getParsingFormat(canon) {
-        let parsingFormatId = this._parsing_formats.get(canon);
-        if (parsingFormatId === undefined) {
-            return undefined;
-        }
-        return this._project.getParsingFormat(parsingFormatId);
-    }
-    getChapterHeader(chapter) {
-        let str = this.chapterHeader.replace("__CHAPTER__", chapter.toString());
-        return this._project.replaceNumerals(str);
-    }
-    getFootnoteMarker(index) {
-        return this.footnoteMarkers[index % this.footnoteMarkers.length];
-    }
-    demoChapterHeader(number) {
-        return this.chapterHeader.replace('__CHAPTER__', this.project.replaceNumerals(number));
-    }
-    demoFootnoteMarkers(howmany) {
-        let markers = this.footnoteMarkers;
-        let result = "";
-        for (let i = 0; i < howmany; i++) {
-            result += markers[i % markers.length] + ' ';
-        }
-        return result;
-    }
-    toObject() {
-        let parsing_formats = {};
-        this._parsing_formats.forEach((value, key) => {
-            parsing_formats[key] = value;
-        });
-        return {
-            footnoteMarkers: this._footnoteMarkers,
-            polyglossiaOtherLanguage: this._polyglossiaOtherLanguage,
-            chapterHeader: this._chapterHeader,
-            publication_project_font: this._publication_project_font,
-            publication_biblical_font: this._publication_biblical_font,
-            latex_template: this._latex_template,
-            parsing_formats: parsing_formats,
-            css_template: this._css_template,
-            footnote_style: this._footnote_style,
-        };
-    }
-    static fromRow(row, id, project) {
-        let pc = new PublicationConfiguration(id, project);
-        pc._footnoteMarkers = row.footnoteMarkers || [];
-        pc._polyglossiaOtherLanguage = row.polyglossiaOtherLanguage;
-        pc._chapterHeader = row.chapterHeader;
-        pc.publicationProjectFont = row.publication_project_font;
-        pc.publicationBiblicalFont = row.publication_biblical_font;
-        pc.latex_template = row.latex_template || PublicationConfiguration.default_latex_template;
-        pc.css_template = row.css_template || PublicationConfiguration.default_css_template;
-        pc.footnote_style = row.footnote_style || "lettered-by-verse";
-        pc._parsing_formats = new Map();
-        for (const [key, value] of Object.entries(row.parsing_formats || [])) {
-            pc._parsing_formats.set(key, value);
-        }
-        return pc;
-    }
-    static default_latex_template = `\\documentclass{openreader}
-\\title{__TITLE__}
-\\date{}
-\\setmainlanguage{__MAINLANGUAGE__}
-\\setmainfont{__MAINLANGUAGEFONT__}
-\\setotherlanguage{__BIBLICALLANGUAGE__}
-__NEWFONTFAMILYCOMMAND__
-\\FootnoteStyle{__FOOTNOTESTYLE__}
-\\begin{document}
-\\ORBselectlanguage{__BIBLICALLANGUAGE__}
-\\maketitle
-\\raggedbottom 
-\\fontsize{16pt}{24pt}\\selectfont
-__CONTENT__
-\\end{document}`;
-    static default_css_template = `body {
-    font-family: __BIBLICAL_FONT__, Georgia, serif;
-    line-height: 1.5;
-    margin: 2em;
-    max-width: 800px;
-    margin-left: auto;
-    margin-right: auto;
-    font-size: 2em;
-    user-select: none;
-}
-
-html[lang='hbo'] {
-    direction: rtl;
-}
-
-html[lang='grc'] {
-    direction: ltr;
-}
-.chapter {
-    margin-bottom: 1em;
-}
-.chapter-number {
-    font-family: __PROJECT_FONT__;
-    font-weight: bold;
-    margin-right: 0.5em;
-    color: #444;
-}
-.verse {
-    display: inline;
-}
-.verse-number {
-    font-family: __PROJECT_FONT__;
-    font-size: 0.6em;
-    color: black;
-    vertical-align: top;
-    margin-left: 0.3em;
-}
-.annotation-toggle {
-    font-family: __PROJECT_FONT__;
-    cursor: pointer;
-    color: gray;
-    text-decoration: none;
-    vertical-align: super;
-    font-size: 0.7em;
-    position: relative;
-    display: inline-block;
-}
-
-.annotation {
-    font-family: __PROJECT_FONT__;
-
-    color: black;
-    display: block;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%); /* Adjust for centering */
-    background-color: #f9f9f9;
-    border: 1px solid #ccc;
-    padding: 0.5em;
-    z-index: 10;
-    
-    white-space: nowrap; 
-    overflow-wrap: break-word; 
-}
-.annotation.hidden {
-    display: none;
-}
-
-div[dir='rtl'] .parsing:not(:last-child), 
-div[dir='rtl'] .lexical-form:not(:last-child), 
-div[dir='rtl'] .gloss:not(:last-child) 
-{
-    margin-left: 0.5em;
-}
-
-div[dir='ltr'] .parsing:not(:last-child), 
-div[dir='ltr'] .lexical-form:not(:last-child), 
-div[dir='ltr'] .gloss:not(:last-child) 
-{
-    margin-right: 0.5em;
-}
-
-.gloss {
-    font-style: italic;
-}
-
-.lexical-form {
-    font-family: __BIBLICAL_FONT__, Georgia, serif;
-}
-
-.wd {
-    white-space: nowrap;
-}`;
-}
-exports.PublicationConfiguration = PublicationConfiguration;
-
-
-/***/ }),
-
-/***/ 411:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.VerseReference = void 0;
-const Canons_1 = __nccwpck_require__(961);
-class VerseReference {
-    ubs_book;
-    chapter;
-    verse;
-    canon;
-    constructor(ubs_book, chapter, verse, canon) {
-        this.ubs_book = ubs_book;
-        this.chapter = chapter;
-        this.verse = verse;
-        this.canon = canon;
-    }
-    equals(other) {
-        return this.ubs_book === other.ubs_book
-            && this.chapter === other.chapter
-            && this.verse === other.verse
-            && this.canon === other.canon;
-    }
-    /// NB: will never return LXX
-    static canonFromBook(book) {
-        for (let i = 0; i < Canons_1.CANONS.length; i++) {
-            if (Canons_1.CANONS[i].hasBook(book)) {
-                return Canons_1.CANONS[i];
-            }
-        }
-        return undefined;
-    }
-    get canonData() {
-        return (0, Canons_1.getCanon)(this.canon);
-    }
-    nextVerse() {
-        return this.canonData.nextVerse(this);
-    }
-    previousVerse() {
-        return this.canonData.previousVerse(this);
-    }
-    get latinBookName() {
-        return VerseReference.ubsBookToLatin(this.ubs_book);
-    }
-    get xmlId() {
-        return `${this.canon}-${this.ubs_book}-${this.chapter}-${this.verse}`;
-    }
-    toString() {
-        return `${this.canon} ${this.ubs_book} ${this.chapter}:${this.verse}`;
-    }
-    static fromString(str) {
-        if (str === undefined) {
-            return undefined;
-        }
-        const regex = /^([A-Z]{2,3})\s([A-Z0-9]{3})\s(\d+):(\d+)$/;
-        const match = str.match(regex);
-        if (match) {
-            const canon = match[1];
-            const ubs_book = match[2];
-            const chapter = parseInt(match[3]);
-            const verse = parseInt(match[4]);
-            return new VerseReference(ubs_book, chapter, verse, canon);
-        }
-        return undefined;
-    }
-    static ubsBookToLatin(ubsBook) {
-        switch (ubsBook) {
-            case 'GEN': return 'Genesis';
-            case 'EXO': return 'Exodus';
-            case 'LEV': return 'Leviticus';
-            case 'NUM': return 'Numeri';
-            case 'DEU': return 'Deuteronomium';
-            case 'JOS': return 'Josua';
-            case 'JDG': return 'Judices';
-            case 'RUT': return 'Ruth';
-            case '1SA': return 'Samuel_I';
-            case '2SA': return 'Samuel_II';
-            case '1KI': return 'Reges_I';
-            case '2KI': return 'Reges_II';
-            case '1CH': return 'Chronica_I';
-            case '2CH': return 'Chronica_II';
-            case 'EZR': return 'Esra';
-            case 'NEH': return 'Nehemia';
-            case 'EST': return 'Esther';
-            case 'JOB': return 'Iob';
-            case 'PSA': return 'Psalmi';
-            case 'PRO': return 'Proverbia';
-            case 'ECC': return 'Ecclesiastes';
-            case 'SNG': return 'Canticum';
-            case 'ISA': return 'Jesaia';
-            case 'JER': return 'Jeremia';
-            case 'LAM': return 'Threni';
-            case 'EZK': return 'Ezechiel';
-            case 'DAN': return 'Daniel';
-            case 'HOS': return 'Hosea';
-            case 'JOL': return 'Joel';
-            case 'AMO': return 'Amos';
-            case 'OBA': return 'Obadia';
-            case 'JON': return 'Jona';
-            case 'MIC': return 'Micha';
-            case 'NAM': return 'Nahum';
-            case 'HAB': return 'Habakuk';
-            case 'ZEP': return 'Zephania';
-            case 'HAG': return 'Haggai';
-            case 'ZEC': return 'Sacharia';
-            case 'MAL': return 'Maleachi';
-            case 'MAT': return 'secundum Matthæum';
-            case 'MRK': return 'secundum Marcum';
-            case 'LUK': return 'secundum Lucam';
-            case 'JHN': return 'secundum Ioannem';
-            case 'ACT': return 'Actus';
-            case 'ROM': return 'ad Romanos';
-            case '1CO': return '1 ad Corinthios';
-            case '2CO': return '2 ad Corinthios';
-            case 'GAL': return 'ad Galatas';
-            case 'EPH': return 'ad Ephesios';
-            case 'PHP': return 'ad Philippenses';
-            case 'COL': return 'ad Colossenses';
-            case '1TH': return '1 ad Thessalonicenses';
-            case '2TH': return '2 ad Thessalonicenses';
-            case '1TI': return '1 ad Timotheum';
-            case '2TI': return '2 ad Timotheum';
-            case 'TIT': return 'ad Titum';
-            case 'PHM': return 'ad Philemonem';
-            case 'HEB': return 'ad Hebræos';
-            case 'JAS': return 'Iacobi';
-            case '1PE': return '1 Petri';
-            case '2PE': return '2 Petri';
-            case '1JN': return '1 Ioannis';
-            case '2JN': return '2 Ioannis';
-            case '3JN': return '3 Ioannis';
-            case 'JUD': return 'Iudæ';
-            case 'REV': return 'Apocalypsis';
-        }
-    }
-}
-exports.VerseReference = VerseReference;
-
-
-/***/ }),
-
-/***/ 578:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.NTConciseParsingFormat = void 0;
-const NTConciseParsingFormatStrings_1 = __nccwpck_require__(5118);
-const ParsingFormatBase_1 = __nccwpck_require__(4833);
-class NTConciseParsingFormat extends ParsingFormatBase_1.ParsingFormatBase {
-    strings;
-    // private numeralConverter: NumeralConverter;
-    constructor(id, template, numeralConverter, strings = NTConciseParsingFormatStrings_1.NTConciseEnglish) {
-        super(id, template, "NT");
-        this.strings = strings;
-        // this.numeralConverter = numeralConverter;
-    }
-    toObject() {
-        return {
-            id: this.id,
-            template: this.template,
-            translations: this.strings
-        };
-    }
-    getString(key) {
-        return this.strings[key];
-    }
-    nounParsingString(element) {
-        let parsing = "N";
-        /// case
-        if (this.strings[element.grammatical_case]) {
-            parsing += this.strings[element.grammatical_case];
-        }
-        /// gender
-        if (this.strings[element.gender]) {
-            parsing += this.strings[element.gender];
-        }
-        /// number
-        parsing += this.strings[element.grammatical_number];
-        return parsing;
-    }
-    verbParsingString(element) {
-        if (element.mood === "infinitive") {
-            let parsing = this.strings.verb;
-            parsing += this.strings.infinitive;
-            /// tense
-            parsing += this.strings[element.tense];
-            /// voice
-            parsing += this.strings[element.voice];
-            return parsing;
-        }
-        else if (element.mood === "participle") {
-            let parsing = this.strings.verb + this.strings.participle;
-            /// tense
-            parsing += this.strings[element.tense];
-            /// voice
-            parsing += this.strings[element.voice];
-            /// case
-            if (this.strings[element.grammatical_case]) {
-                parsing += this.strings[element.grammatical_case];
-            }
-            /// gender
-            parsing += this.strings[element.gender];
-            /// number
-            parsing += this.strings[element.grammatical_number];
-            return parsing;
-        }
-        else {
-            let parsing = this.strings.verb;
-            /// person
-            switch (element.person) {
-                case "1st":
-                    parsing += this.strings.first;
-                    break;
-                case "2nd":
-                    parsing += this.strings.second;
-                    break;
-                case "3rd":
-                    parsing += this.strings.third;
-                    break;
-            }
-            /// number
-            parsing += this.strings[element.grammatical_number];
-            /// tense
-            parsing += this.strings[element.tense];
-            /// voice
-            parsing += this.strings[element.voice];
-            /// mood
-            parsing += this.strings[element.mood];
-            return parsing;
-        }
-    }
-}
-exports.NTConciseParsingFormat = NTConciseParsingFormat;
-
-
-/***/ }),
-
-/***/ 5118:
-/***/ ((__unused_webpack_module, exports) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.NTConciseEnglish = void 0;
-/// https://www.preceptaustin.org/greek_abbreviations#Greek%20Resources
-exports.NTConciseEnglish = {
-    nominative: 'N',
-    genitive: 'G',
-    dative: 'D',
-    accusative: 'A',
-    NA: '',
-    masculine: 'M',
-    feminine: 'F',
-    neuter: 'N',
-    singular: 'S',
-    plural: 'P',
-    present: 'P',
-    imperfect: 'I',
-    future: 'F',
-    aorist: 'A',
-    perfect: 'R',
-    /// this is an odd practice, but it seems to be the standard
-    /// presumably pluperfects are different enough from presents
-    /// for the difference to be clear
-    pluperfect: 'P',
-    active: 'A',
-    middle: 'M',
-    passive: 'P',
-    indicative: 'I',
-    imperative: 'M',
-    subjunctive: 'S',
-    optative: 'O',
-    infinitive: 'N',
-    participle: 'P',
-    first: '1',
-    second: '2',
-    third: '3',
-    verb: 'V',
-    noun: 'N',
-};
-
-
-/***/ }),
-
-/***/ 2219:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.NTTemplaticParsingFormat = void 0;
-const NTTemplaticParsingFormatStrings_1 = __nccwpck_require__(3929);
-const ParsingFormatBase_1 = __nccwpck_require__(4833);
-class NTTemplaticParsingFormat extends ParsingFormatBase_1.ParsingFormatBase {
-    strings;
-    // private numeralConverter: NumeralConverter;
-    constructor(id, template, numeralConverter, strings = NTTemplaticParsingFormatStrings_1.NTTemplaticEnglish) {
-        super(id, template, "NT");
-        this.strings = strings;
-        // this.numeralConverter = numeralConverter;
-    }
-    toObject() {
-        return {
-            id: this.id,
-            template: this.template,
-            translations: this.strings
-        };
-    }
-    getString(key) {
-        return this.strings[key];
-    }
-    nounParsingString(element) {
-        let parsing = this.strings.noun_template;
-        /// case
-        parsing = parsing.replace("__CASE__", this.strings[element.grammatical_case] || "");
-        /// gender
-        parsing = parsing.replace("__GENDER__", this.strings[element.gender] || "");
-        /// number
-        parsing = parsing.replace("__NUMBER__", this.strings[element.grammatical_number] || "");
-        return parsing;
-    }
-    verbParsingString(element) {
-        if (element.mood === "infinitive") {
-            let parsing = this.strings.infinitive_template;
-            /// tense
-            parsing = parsing.replace("__TENSE__", this.strings[element.tense] || "");
-            /// voice
-            parsing = parsing.replace("__VOICE__", this.strings[element.voice] || "");
-            /// infinitive
-            parsing = parsing.replace("__INFINITIVE__", this.strings.infinitive || "");
-            return parsing;
-        }
-        else if (element.mood === "participle") {
-            let parsing = this.strings.participle_template;
-            /// tense
-            parsing = parsing.replace("__TENSE__", this.strings[element.tense] || "");
-            /// voice
-            parsing = parsing.replace("__VOICE__", this.strings[element.voice] || "");
-            /// participle
-            parsing = parsing.replace("__PARTICIPLE__", this.strings.participle || "");
-            /// case
-            parsing = parsing.replace("__CASE__", this.strings[element.grammatical_case] || "");
-            /// gender
-            parsing = parsing.replace("__GENDER__", this.strings[element.gender] || "");
-            /// number
-            parsing = parsing.replace("__NUMBER__", this.strings[element.grammatical_number] || "");
-            return parsing;
-        }
-        else {
-            let parsing = this.strings.finite_verb_template;
-            /// tense
-            parsing = parsing.replace("__TENSE__", this.strings[element.tense] || "");
-            /// voice
-            parsing = parsing.replace("__VOICE__", this.strings[element.voice] || "");
-            /// mood
-            parsing = parsing.replace("__MOOD__", this.strings[element.mood] || "");
-            /// person
-            let personString = "";
-            switch (element.person) {
-                case "1st":
-                    personString = this.strings.first;
-                    break;
-                case "2nd":
-                    personString = this.strings.second;
-                    break;
-                case "3rd":
-                    personString = this.strings.third;
-                    break;
-            }
-            parsing = parsing.replace("__PERSON__", personString);
-            /// number
-            parsing = parsing.replace("__NUMBER__", this.strings[element.grammatical_number] || "");
-            return parsing;
-        }
-    }
-}
-exports.NTTemplaticParsingFormat = NTTemplaticParsingFormat;
-
-
-/***/ }),
-
-/***/ 3929:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.NTTemplaticPersian = exports.NTTemplaticEnglish = exports.NTTemplativeStringLabels = void 0;
-const NTVerboseParsingFormatStrings_1 = __nccwpck_require__(4156);
-exports.NTTemplativeStringLabels = {
-    noun_template: "Noun Template",
-    infinitive_template: "Infinitive Template",
-    participle_template: "Participle Template",
-    finite_verb_template: "Finite Verb Template",
-    ...NTVerboseParsingFormatStrings_1.NTVerboseStringLabels
-};
-exports.NTTemplaticEnglish = {
-    ...NTVerboseParsingFormatStrings_1.NTVerboseEnglish,
-    noun_template: '__CASE__ __GENDER__ __NUMBER__',
-    infinitive_template: '__TENSE__ __VOICE__ __INFINITIVE__',
-    participle_template: '__TENSE__ __VOICE__ __PARTICIPLE__ __CASE__ __GENDER__ __NUMBER__',
-    finite_verb_template: '__TENSE__ __VOICE__ __MOOD__ __PERSON__ __NUMBER__',
-};
-exports.NTTemplaticPersian = {
-    ...NTVerboseParsingFormatStrings_1.NTVerbosePersian,
-    noun_template: '__CASE__ __GENDER__ __NUMBER__',
-    infinitive_template: '__TENSE__ __VOICE__ __INFINITIVE__',
-    participle_template: '__TENSE__ __VOICE__ __PARTICIPLE__ __CASE__ __GENDER__ __NUMBER__',
-    finite_verb_template: '__TENSE__ __VOICE__ __MOOD__ __PERSON__ __NUMBER__',
-};
-
-
-/***/ }),
-
-/***/ 9120:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.NTVerboseParsingFormat = void 0;
-const NTVerboseParsingFormatStrings_1 = __nccwpck_require__(4156);
-const ParsingFormatBase_1 = __nccwpck_require__(4833);
-class NTVerboseParsingFormat extends ParsingFormatBase_1.ParsingFormatBase {
-    strings;
-    // private numeralConverter: NumeralConverter;
-    constructor(id, template, numeralConverter, strings = NTVerboseParsingFormatStrings_1.NTVerboseEnglish) {
-        super(id, template, "NT");
-        this.strings = strings;
-        // this.numeralConverter = numeralConverter;
-    }
-    toObject() {
-        return {
-            id: this.id,
-            template: this.template,
-            translations: this.strings
-        };
-    }
-    getString(key) {
-        return this.strings[key];
-    }
-    nounParsingString(element) {
-        let parsing = "";
-        /// case
-        if (this.strings[element.grammatical_case]) {
-            parsing += this.strings[element.grammatical_case];
-            parsing += " ";
-        }
-        /// gender
-        if (this.strings[element.gender]) {
-            parsing += this.strings[element.gender];
-            parsing += " ";
-        }
-        /// number
-        parsing += this.strings[element.grammatical_number];
-        return parsing;
-    }
-    verbParsingString(element) {
-        if (element.mood === "infinitive") {
-            /// tense
-            let parsing = this.strings[element.tense];
-            parsing += " ";
-            /// voice
-            parsing += this.strings[element.voice];
-            parsing += " ";
-            parsing += this.strings.infinitive;
-            return parsing;
-        }
-        else if (element.mood === "participle") {
-            /// tense
-            let parsing = this.strings[element.tense];
-            parsing += " ";
-            /// voice
-            parsing += this.strings[element.voice];
-            parsing += " ";
-            parsing += this.strings.participle;
-            parsing += " ";
-            /// case
-            if (this.strings[element.grammatical_case]) {
-                parsing += this.strings[element.grammatical_case];
-                parsing += " ";
-            }
-            /// gender
-            parsing += this.strings[element.gender];
-            parsing += " ";
-            /// number
-            parsing += this.strings[element.grammatical_number];
-            return parsing;
-        }
-        else {
-            /// tense
-            let parsing = this.strings[element.tense];
-            parsing += " ";
-            /// voice
-            parsing += this.strings[element.voice];
-            parsing += " ";
-            /// mood
-            parsing += this.strings[element.mood];
-            parsing += " ";
-            /// person
-            switch (element.person) {
-                case "1st":
-                    parsing += this.strings.first;
-                    break;
-                case "2nd":
-                    parsing += this.strings.second;
-                    break;
-                case "3rd":
-                    parsing += this.strings.third;
-                    break;
-            }
-            parsing += " ";
-            /// number
-            parsing += this.strings[element.grammatical_number];
-            return parsing;
-        }
-    }
-}
-exports.NTVerboseParsingFormat = NTVerboseParsingFormat;
-
-
-/***/ }),
-
-/***/ 4156:
-/***/ ((__unused_webpack_module, exports) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.NTVerbosePersian = exports.NTVerboseEnglish = exports.NTVerboseStringLabels = void 0;
-exports.NTVerboseStringLabels = {
-    nominative: "Nominative",
-    genitive: "Genitive",
-    dative: "Dative",
-    accusative: "Accusative",
-    masculine: "Masculine",
-    feminine: "Feminine",
-    neuter: "Neuter",
-    singular: "Singular",
-    plural: "Plural",
-    present: "Present",
-    imperfect: "Imperfect",
-    future: "Future",
-    aorist: "Aorist",
-    perfect: "Perfect",
-    pluperfect: "Pluperfect",
-    active: "Active",
-    middle: "Middle",
-    passive: "Passive",
-    indicative: "Indicative",
-    imperative: "Imperative",
-    subjunctive: "Subjunctive",
-    optative: "Optative",
-    infinitive: "Infinitive",
-    participle: "Participle",
-    first: "First",
-    second: "Second",
-    third: "Third",
-    verb: "Verb",
-    noun: "Noun"
-};
-exports.NTVerboseEnglish = {
-    nominative: 'nominative',
-    genitive: 'genitive',
-    dative: 'dative',
-    accusative: 'accusative',
-    NA: '',
-    masculine: 'masculine',
-    feminine: 'feminine',
-    neuter: 'neuter',
-    singular: 'singular',
-    plural: 'plural',
-    present: 'present',
-    imperfect: 'imperfect',
-    future: 'future',
-    aorist: 'aorist',
-    perfect: 'perfect',
-    pluperfect: 'pluperfect',
-    active: 'active',
-    middle: 'middle',
-    passive: 'passive',
-    indicative: 'indicative',
-    imperative: 'imperative',
-    subjunctive: 'subjunctive',
-    optative: 'optative',
-    infinitive: 'infinitive',
-    participle: 'participle',
-    first: 'first',
-    second: 'second',
-    third: 'third',
-};
-exports.NTVerbosePersian = {
-    nominative: 'نهادی',
-    genitive: 'وابستگی',
-    dative: 'کنش‌گیری',
-    accusative: 'مفعولی',
-    NA: '',
-    masculine: 'مذکر',
-    feminine: 'مؤنث',
-    neuter: 'خنثی',
-    singular: 'مفرد',
-    plural: 'جمع',
-    present: 'حال',
-    imperfect: 'گذشتهٔ استمراری',
-    future: 'آینده',
-    aorist: 'ماضی ساده',
-    perfect: 'کامل',
-    pluperfect: 'ماضی بَعید',
-    active: 'معلوم',
-    middle: 'میانه',
-    passive: 'مجهول',
-    indicative: 'اِخباری',
-    imperative: 'امری',
-    subjunctive: 'اِلتِزامی',
-    optative: 'تمنایی',
-    infinitive: 'مصدر',
-    participle: 'وجه وصفی',
-    first: 'اول',
-    second: 'دوم',
-    third: 'سوم',
-};
-
-
-/***/ }),
-
-/***/ 3671:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.OTConciseParsingFormat = void 0;
-const OTConciseParsingFormatStrings_1 = __nccwpck_require__(9701);
-const ParsingFormatBase_1 = __nccwpck_require__(4833);
-class OTConciseParsingFormat extends ParsingFormatBase_1.ParsingFormatBase {
-    strings;
-    numeralConverter;
-    constructor(id, template, numeralConverter, strings = OTConciseParsingFormatStrings_1.OTBasicEnglish) {
-        super(id, template, "OT");
-        this.numeralConverter = numeralConverter;
-        this.strings = strings;
-    }
-    toObject() {
-        return {
-            id: this.id,
-            template: this.template,
-            translations: this.strings
-        };
-    }
-    getString(key) {
-        return this.strings[key];
-    }
-    nounParsingString(element) {
-        let str = this.strings.noun_abbreviation + "7" + this.secondNumberForNouns(element);
-        if (element.hasPrecedingInterrogative) {
-            str += this.strings.interrogative_abbreviation;
-        }
-        if (element.hasPronominalSuffix) {
-            str += this.strings.pronominal_suffix_abbreviation + this.secondNumberForInflectedVerbs(element.prs_ps, element.prs_nu, element.prs_gn);
-        }
-        return this.numeralConverter(str);
-    }
-    verbParsingString(element) {
-        let str = "";
-        switch (element.vs) {
-            case "qal":
-                str += this.strings.qal_abbreviation;
-                break;
-            case "piel":
-                str += this.strings.piel_abbreviation;
-                break;
-            case "hif":
-                str += this.strings.hiphil_abbreviation;
-                break;
-            case "nif":
-                str += this.strings.niphal_abbreviation;
-                break;
-            case "pual":
-                str += this.strings.piel_abbreviation + this.strings.passive_abbreviation;
-                break;
-            case "hit":
-                str += this.strings.hithpael_abbreviation;
-                break;
-            case "hof":
-                str += this.strings.hiphil_abbreviation + this.strings.passive_abbreviation;
-                break;
-            case "hsht":
-                str += this.strings.hishtaphel_abbreviation;
-                break;
-            case "pasq":
-                str += this.strings.qal_abbreviation + this.strings.passive_abbreviation;
-                break;
-            case "hotp":
-                str += this.strings.hithpael_abbreviation + this.strings.passive_abbreviation;
-                break;
-            case "nit":
-                str += this.strings.nithpael_abbreviation;
-                break;
-            case "poal":
-                str += this.strings.piel_abbreviation + this.strings.passive_abbreviation;
-                break;
-            case "poel":
-                str += this.strings.piel_abbreviation;
-                break;
-            case "htpo":
-                str += this.strings.hithpael_abbreviation;
-                break;
-            case "peal":
-                str += this.strings.qal_abbreviation;
-                break;
-            case "tif":
-                str += this.strings.hithpael_abbreviation;
-                break;
-            case "etpa":
-                str += this.strings.hithpael_abbreviation;
-                break;
-            case "pael":
-                str += this.strings.piel_abbreviation;
-                break;
-            case "haf":
-                str += this.strings.hiphil_abbreviation;
-                break;
-            case "htpe":
-                str += this.strings.hithpeel_abbreviation;
-                break;
-            case "htpa":
-                str += this.strings.hithpael_abbreviation;
-                break;
-            case "peil":
-                str += this.strings.qal_abbreviation + this.strings.passive_abbreviation;
-                break;
-            case "etpe":
-                str += this.strings.hithpeel_abbreviation;
-                break;
-            case "afel":
-                str += this.strings.hiphil_abbreviation;
-                break;
-            case "shaf":
-                str += this.strings.shafel_abbreviation;
-                break;
-            case "NA":
-            default:
-                console.error("No stem specified for verb:", element);
-        }
-        switch (element.vt) {
-            case "perf":
-                str += "1" + this.secondNumberForInflectedVerbs(element.ps, element.nu, element.gn);
-                break;
-            case "ptca":
-                str += "5" + this.secondNumberForNouns(element);
-                break;
-            case "wayq":
-                str += this.strings.retentive_abbreviation + "2" + this.secondNumberForInflectedVerbs(element.ps, element.nu, element.gn);
-                break;
-            case "impf":
-                str += "2" + this.secondNumberForInflectedVerbs(element.ps, element.nu, element.gn);
-                break;
-            case "infc":
-                str += "65";
-                break;
-            case "impv":
-                str += "3" + this.secondNumberForInflectedVerbs(element.ps, element.nu, element.gn);
-                break;
-            case "infa":
-                str += "60";
-                break;
-            case "ptcp":
-                /// for these stems, the passive_abbreviation has already been added
-                if (element.vs == "hof" || element.vs == "pasq" || element.vs == "pual") {
-                    str += "5" + this.secondNumberForNouns(element);
-                }
-                else {
-                    str += this.strings.passive_abbreviation + "5" + this.secondNumberForNouns(element);
-                }
-                break;
-            case "NA":
-            default:
-                console.error("No tense specified for verb:", element);
-        }
-        if (element.hasPronominalSuffix) {
-            str += this.strings.pronominal_suffix_abbreviation + this.secondNumberForInflectedVerbs(element.prs_ps, element.prs_nu, element.prs_gn);
-        }
-        if (element.hasPrecedingInterrogative) {
-            str += this.strings.interrogative_abbreviation;
-        }
-        return this.numeralConverter(str);
-    }
-    secondNumberForInflectedVerbs(ps, nu, gn) {
-        const first = ps == "p1";
-        const second = ps == "p2";
-        const third = ps == "p3" || ps == "unknown";
-        const singular = nu == "sg";
-        const plural = nu == "pl" || nu == "du";
-        /// I'm not at all certain about this "unknown" business
-        const masculine = gn == "m" || gn == "unknown";
-        const feminine = gn == "f";
-        if (third && singular && masculine) {
-            return "0";
-        }
-        else if (third && singular && feminine) {
-            return "1";
-        }
-        else if (second && singular && masculine) {
-            return "2";
-        }
-        else if (second && singular && feminine) {
-            return "3";
-        }
-        else if (first && singular) {
-            return "4";
-        }
-        else if (third && plural && masculine) {
-            return "5";
-        }
-        else if (third && plural && feminine) {
-            return "6";
-        }
-        else if (second && plural && masculine) {
-            return "7";
-        }
-        else if (second && plural && feminine) {
-            return "8";
-        }
-        else if (first && plural) {
-            return "9";
-        }
-        else {
-            console.error("Unrecognized person/number/gender in verb:", ps, nu, gn);
-            throw "Unrecognized person/number/gender";
-        }
-    }
-    secondNumberForNouns(element) {
-        const singular = element.nu == "sg" || element.nu == "unknown";
-        const plural = element.nu == "pl" || element.nu == "du";
-        /// I'm not at all certain about this "unknown" business
-        const masculine = element.gn == "m" || element.gn == "unknown";
-        const feminine = element.gn == "f";
-        /// For active/construct, NA defaults to active
-        const active = element.st == "a" || element.st == "NA";
-        const construct = element.st == "c";
-        const emphatic = element.st == "e";
-        if (masculine && singular && active) {
-            return "0";
-        }
-        else if (feminine && singular && active) {
-            return "1";
-        }
-        else if (masculine && singular && construct) {
-            return "2";
-        }
-        else if (feminine && singular && construct) {
-            return "3";
-        }
-        else if (masculine && plural && active) {
-            return "5";
-        }
-        else if (feminine && plural && active) {
-            return "6";
-        }
-        else if (masculine && plural && construct) {
-            return "7";
-        }
-        else if (feminine && plural && construct) {
-            return "8";
-        }
-        else if (masculine && singular && emphatic) {
-            /// it's a curiosity of the Reader's BHS that it uses the same numbers for emphatic and construct
-            return "2";
-        }
-        else if (feminine && singular && emphatic) {
-            return "3";
-        }
-        else if (masculine && plural && emphatic) {
-            return "7";
-        }
-        else if (feminine && plural && emphatic) {
-            return "8";
-        }
-        else {
-            console.error("Unrecognized number/gender in noun or pronominal suffix:", element);
-            throw "Unrecognized number/gender";
-        }
-    }
-}
-exports.OTConciseParsingFormat = OTConciseParsingFormat;
-
-
-/***/ }),
-
-/***/ 9701:
-/***/ ((__unused_webpack_module, exports) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.OTBasicPersian = exports.OTBasicEnglish = exports.OTConciseStringLabels = void 0;
-exports.OTConciseStringLabels = {
-    noun_abbreviation: "Noun Abbreviation",
-    interrogative_abbreviation: "Interrogative Abbreviation",
-    emphatic_abbreviation: "Emphatic Abbreviation",
-    pronominal_suffix_abbreviation: "Pronominal Suffix Abbreviation",
-    passive_abbreviation: "Passive Abbreviation",
-    qal_abbreviation: "Qal Abbreviation",
-    piel_abbreviation: "Piel Abbreviation",
-    hiphil_abbreviation: "Hiphil Abbreviation",
-    niphal_abbreviation: "Niphal Abbreviation",
-    hithpael_abbreviation: "Hithpael Abbreviation",
-    hishtaphel_abbreviation: "Hishtaphel Abbreviation",
-    nithpael_abbreviation: "Nithpael Abbreviation",
-    hithpeel_abbreviation: "Hithpeel Abbreviation",
-    shafel_abbreviation: "Shafel Abbreviation",
-    retentive_abbreviation: "Retentive Abbreviation"
-};
-exports.OTBasicEnglish = {
-    noun_abbreviation: 'S',
-    interrogative_abbreviation: 'i',
-    emphatic_abbreviation: 'e',
-    pronominal_suffix_abbreviation: 's',
-    passive_abbreviation: 'p',
-    qal_abbreviation: 'G',
-    piel_abbreviation: 'D',
-    hiphil_abbreviation: 'H',
-    niphal_abbreviation: 'N',
-    hithpael_abbreviation: 'tD',
-    hishtaphel_abbreviation: 'Št',
-    nithpael_abbreviation: 'NtD',
-    hithpeel_abbreviation: 'tG',
-    shafel_abbreviation: 'Š',
-    retentive_abbreviation: 'r',
-};
-const ZERO_WIDTH_JOINER = '\u200d';
-// const ZERO_WIDTH_SPACE = '\u200b';
-const THIN_SPACE = '\u2009';
-const JOINER_PLUS_THIN_SPACE = ZERO_WIDTH_JOINER + THIN_SPACE;
-exports.OTBasicPersian = {
-    noun_abbreviation: 'اسم',
-    interrogative_abbreviation: 'استف' + JOINER_PLUS_THIN_SPACE,
-    emphatic_abbreviation: 'تأک' + JOINER_PLUS_THIN_SPACE,
-    pronominal_suffix_abbreviation: 'پ' + JOINER_PLUS_THIN_SPACE,
-    passive_abbreviation: 'مغعول' + THIN_SPACE,
-    qal_abbreviation: 'ق' + JOINER_PLUS_THIN_SPACE,
-    piel_abbreviation: 'پ' + JOINER_PLUS_THIN_SPACE,
-    hiphil_abbreviation: 'ح' + JOINER_PLUS_THIN_SPACE,
-    niphal_abbreviation: 'ن' + JOINER_PLUS_THIN_SPACE,
-    hithpael_abbreviation: 'حیت' + JOINER_PLUS_THIN_SPACE,
-    hishtaphel_abbreviation: 'حیش' + JOINER_PLUS_THIN_SPACE,
-    nithpael_abbreviation: 'نیت' + JOINER_PLUS_THIN_SPACE,
-    /// this is not great
-    hithpeel_abbreviation: 'حیتپ' + JOINER_PLUS_THIN_SPACE,
-    shafel_abbreviation: 'ش' + JOINER_PLUS_THIN_SPACE,
-    retentive_abbreviation: 'اد' + JOINER_PLUS_THIN_SPACE,
-};
-
-
-/***/ }),
-
-/***/ 5450:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.OTTemplaticParsingFormat = void 0;
-const ParsingFormatBase_1 = __nccwpck_require__(4833);
-const OTTemplaticParsingFormatStrings_1 = __nccwpck_require__(9942);
-class OTTemplaticParsingFormat extends ParsingFormatBase_1.ParsingFormatBase {
-    strings;
-    numeralConverter;
-    constructor(id, template, numeralConverter, strings = OTTemplaticParsingFormatStrings_1.OTTemplaticEnglish) {
-        super(id, template, "OT");
-        this.numeralConverter = numeralConverter;
-        this.strings = strings;
-    }
-    toObject() {
-        return {
-            id: this.id,
-            template: this.template,
-            translations: this.strings
-        };
-    }
-    getString(key) {
-        return this.strings[key];
-    }
-    nounParsingString(element) {
-        let str = this.strings.noun_template;
-        str = str.replace("__NOUN__", this.strings.noun);
-        let stateString = "";
-        switch (element.st) {
-            case "a":
-                stateString = this.strings.active;
-                break;
-            case "c":
-                stateString = this.strings.construct;
-                break;
-            case "e":
-                stateString = this.strings.emphatic;
-                break;
-            case "NA":
-            default:
-        }
-        str = str.replace("__STATE__", stateString);
-        let genderString = "";
-        switch (element.gn) {
-            case "m":
-                genderString = this.strings.masculine;
-                break;
-            case "f":
-                genderString = this.strings.feminine;
-                break;
-            case "NA":
-            default:
-        }
-        str = str.replace("__GENDER__", genderString);
-        let numberString = "";
-        switch (element.nu) {
-            case "sg":
-                numberString = this.strings.singular;
-                break;
-            case "pl":
-                numberString = this.strings.plural;
-                break;
-            case "du":
-                numberString = this.strings.dual;
-                break;
-            case "unknown":
-            case "NA":
-        }
-        str = str.replace("__NUMBER__", numberString);
-        str = str.replace("__PRONOMINAL_SUFFIX_TEMPLATE__", this.pronominalSuffixString(element));
-        str = str.replace("__INTERROGATIVE_TEMPLATE__", this.interrogativeString(element));
-        return this.numeralConverter(str);
-    }
-    verbParsingString(element) {
-        let str = this.strings.verb_template;
-        let stemString = "";
-        switch (element.vs) {
-            case "qal":
-                stemString = this.strings.qal;
-                break;
-            case "piel":
-                stemString = this.strings.piel;
-                break;
-            case "hif":
-                stemString = this.strings.hiphil;
-                break;
-            case "nif":
-                stemString = this.strings.niphal;
-                break;
-            case "pual":
-                stemString = this.strings.piel + " " + this.strings.passive;
-                break;
-            case "hit":
-                stemString = this.strings.hithpael;
-                break;
-            case "hof":
-                stemString = this.strings.hiphil + " " + this.strings.passive;
-                break;
-            case "hsht":
-                stemString = this.strings.hishtaphel;
-                break;
-            case "pasq":
-                stemString = this.strings.qal + " " + this.strings.passive;
-                break;
-            case "hotp":
-                stemString = this.strings.hithpael + " " + this.strings.passive;
-                break;
-            case "nit":
-                stemString = this.strings.nithpael;
-                break;
-            case "poal":
-                stemString = this.strings.piel + " " + this.strings.passive;
-                break;
-            case "poel":
-                stemString = this.strings.piel;
-                break;
-            case "htpo":
-                stemString = this.strings.hithpael;
-                break;
-            case "peal":
-                stemString = this.strings.qal;
-                break;
-            case "tif":
-                stemString = this.strings.hithpael;
-                break;
-            case "etpa":
-                stemString = this.strings.hithpael;
-                break;
-            case "pael":
-                stemString = this.strings.piel;
-                break;
-            case "haf":
-                stemString = this.strings.hiphil;
-                break;
-            case "htpe":
-                stemString = this.strings.hithpeel;
-                break;
-            case "htpa":
-                stemString = this.strings.hithpael;
-                break;
-            case "peil":
-                stemString = this.strings.qal + " " + this.strings.passive;
-                break;
-            case "etpe":
-                stemString = this.strings.hithpeel;
-                break;
-            case "afel":
-                stemString = this.strings.hiphil;
-                break;
-            case "shaf":
-                stemString = this.strings.shafel;
-                break;
-            case "NA":
-            default:
-                console.error("No stem specified for verb:", element);
-        }
-        str = str.replace("__STEM__", stemString);
-        let tenseString = "";
-        switch (element.vt) {
-            case "perf":
-                tenseString = this.strings.perfect;
-                break;
-            case "ptcp":
-                tenseString = this.strings.active_participle;
-                break;
-            case "wayq":
-                tenseString = this.strings.wayyiqtol;
-                break;
-            case "impf":
-                tenseString = this.strings.imperfect;
-                break;
-            case "infc":
-                tenseString = this.strings.infinitive_construct;
-                break;
-            case "impv":
-                tenseString = this.strings.imperative;
-                break;
-            case "infa":
-                tenseString = this.strings.infinitive_absolute;
-                break;
-            case "ptca":
-                tenseString = this.strings.passive_participle;
-                break;
-            case "NA":
-            default:
-        }
-        str = str.replace("__TENSE__", tenseString);
-        let personString = "";
-        switch (element.ps) {
-            case "p1":
-                personString = this.strings.first_person;
-                break;
-            case "p2":
-                personString = this.strings.second_person;
-                break;
-            case "p3":
-                personString = this.strings.third_person;
-                break;
-            case "unknown":
-            case "NA":
-        }
-        str = str.replace("__PERSON__", personString);
-        let genderString = "";
-        switch (element.gn) {
-            case "m":
-                genderString = this.strings.masculine;
-                break;
-            case "f":
-                genderString = this.strings.feminine;
-                break;
-            case "NA":
-            default:
-        }
-        str = str.replace("__GENDER__", genderString);
-        let numberString = "";
-        switch (element.nu) {
-            case "sg":
-                numberString = this.strings.singular;
-                break;
-            case "pl":
-                numberString = this.strings.plural;
-                break;
-            case "du":
-                numberString = this.strings.dual;
-                break;
-            case "NA":
-        }
-        str = str.replace("__NUMBER__", numberString);
-        str = str.replace("__PRONOMINAL_SUFFIX_TEMPLATE__", this.pronominalSuffixString(element));
-        str = str.replace("__INTERROGATIVE_TEMPLATE__", this.interrogativeString(element));
-        return this.numeralConverter(str);
-    }
-    pronominalSuffixString(element) {
-        if (element.hasPronominalSuffix) {
-            let str = this.strings.pronominal_suffix_template;
-            str = str.replace("__SUFFIX__", this.strings.suffix);
-            let personString = "";
-            switch (element.prs_ps) {
-                case "p1":
-                    personString = this.strings.first_person;
-                    break;
-                case "p2":
-                    personString = this.strings.second_person;
-                    break;
-                case "p3":
-                    personString = this.strings.third_person;
-                    break;
-                case "unknown":
-                case "NA":
-            }
-            str = str.replace("__PERSON__", personString);
-            let genderString = "";
-            switch (element.prs_gn) {
-                case "m":
-                    genderString = this.strings.masculine;
-                    break;
-                case "f":
-                    genderString = this.strings.feminine;
-                    break;
-                case "NA":
-            }
-            str = str.replace("__GENDER__", genderString);
-            let numberString = "";
-            switch (element.prs_nu) {
-                case "sg":
-                    numberString = this.strings.singular;
-                    break;
-                case "pl":
-                    numberString = this.strings.plural;
-                    break;
-                case "du":
-                    numberString = this.strings.dual;
-                    break;
-                case "NA":
-            }
-            str = str.replace("__NUMBER__", numberString);
-            return str;
-        }
-        else {
-            return "";
-        }
-    }
-    interrogativeString(element) {
-        if (element.hasPrecedingInterrogative) {
-            return this.strings.interrogative_template;
-        }
-        else {
-            return "";
-        }
-    }
-}
-exports.OTTemplaticParsingFormat = OTTemplaticParsingFormat;
-
-
-/***/ }),
-
-/***/ 9942:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.OTTemplaticEnglish = exports.OTTemplativeStringLabels = void 0;
-const OTVerboseParsingFormatStrings_1 = __nccwpck_require__(3211);
-exports.OTTemplativeStringLabels = {
-    noun_template: 'Noun Template',
-    verb_template: 'Verb Template',
-    pronominal_suffix_template: 'Pronominal Suffix Template',
-    interrogative_template: 'Interrogative Template',
-    ...OTVerboseParsingFormatStrings_1.OTVerboseStringLabels
-};
-exports.OTTemplaticEnglish = {
-    ...OTVerboseParsingFormatStrings_1.OTVerboseEnglish,
-    noun_template: '__NOUN__ __STATE__ __GENDER__ __NUMBER____PRONOMINAL_SUFFIX_TEMPLATE____INTERROGATIVE_TEMPLATE__',
-    pronominal_suffix_template: ', __SUFFIX__ __PERSON__ __GENDER__ __NUMBER__',
-    interrogative_template: ', __INTERROGATIVE__',
-    verb_template: '__STEM__ __TENSE__ __PERSON__ __GENDER__ __NUMBER____PRONOMINAL_SUFFIX_TEMPLATE____INTERROGATIVE_TEMPLATE__',
-};
-
-
-/***/ }),
-
-/***/ 9941:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.OTVerboseParsingFormat = void 0;
-const ParsingFormatBase_1 = __nccwpck_require__(4833);
-const OTVerboseParsingFormatStrings_1 = __nccwpck_require__(3211);
-class OTVerboseParsingFormat extends ParsingFormatBase_1.ParsingFormatBase {
-    strings;
-    numeralConverter;
-    constructor(id, template, numeralConverter, strings = OTVerboseParsingFormatStrings_1.OTVerboseEnglish) {
-        super(id, template, "OT");
-        this.numeralConverter = numeralConverter;
-        this.strings = strings;
-    }
-    toObject() {
-        return {
-            id: this.id,
-            template: this.template,
-            translations: this.strings
-        };
-    }
-    getString(key) {
-        return this.strings[key];
-    }
-    nounParsingString(element) {
-        let str = this.strings.noun;
-        switch (element.st) {
-            case "a":
-                str += " " + this.strings.active;
-                break;
-            case "c":
-                str += " " + this.strings.construct;
-                break;
-            case "e":
-                str += " " + this.strings.emphatic;
-                break;
-            case "NA":
-            default:
-        }
-        switch (element.gn) {
-            case "m":
-                str += " " + this.strings.masculine;
-                break;
-            case "f":
-                str += " " + this.strings.feminine;
-                break;
-            case "NA":
-            default:
-        }
-        switch (element.nu) {
-            case "sg":
-                str += " " + this.strings.singular;
-                break;
-            case "pl":
-                str += " " + this.strings.plural;
-                break;
-            case "du":
-                str += " " + this.strings.dual;
-                break;
-            case "unknown":
-            case "NA":
-        }
-        str += this.pronominalSuffixString(element);
-        if (element.hasPrecedingInterrogative) {
-            str += ", " + this.strings.interrogative;
-        }
-        return this.numeralConverter(str);
-    }
-    verbParsingString(element) {
-        let str = "";
-        switch (element.vs) {
-            case "qal":
-                str += " " + this.strings.qal;
-                break;
-            case "piel":
-                str += " " + this.strings.piel;
-                break;
-            case "hif":
-                str += " " + this.strings.hiphil;
-                break;
-            case "nif":
-                str += " " + this.strings.niphal;
-                break;
-            case "pual":
-                str += " " + this.strings.piel + " " + this.strings.passive;
-                break;
-            case "hit":
-                str += " " + this.strings.hithpael;
-                break;
-            case "hof":
-                str += " " + this.strings.hiphil + " " + this.strings.passive;
-                break;
-            case "hsht":
-                str += " " + this.strings.hishtaphel;
-                break;
-            case "pasq":
-                str += " " + this.strings.qal + " " + this.strings.passive;
-                break;
-            case "hotp":
-                str += " " + this.strings.hithpael + " " + this.strings.passive;
-                break;
-            case "nit":
-                str += " " + this.strings.nithpael;
-                break;
-            case "poal":
-                str += " " + this.strings.piel + " " + this.strings.passive;
-                break;
-            case "poel":
-                str += " " + this.strings.piel;
-                break;
-            case "htpo":
-                str += " " + this.strings.hithpael;
-                break;
-            case "peal":
-                str += " " + this.strings.qal;
-                break;
-            case "tif":
-                str += " " + this.strings.hithpael;
-                break;
-            case "etpa":
-                str += " " + this.strings.hithpael;
-                break;
-            case "pael":
-                str += " " + this.strings.piel;
-                break;
-            case "haf":
-                str += " " + this.strings.hiphil;
-                break;
-            case "htpe":
-                str += " " + this.strings.hithpeel;
-                break;
-            case "htpa":
-                str += " " + this.strings.hithpael;
-                break;
-            case "peil":
-                str += " " + this.strings.qal + " " + this.strings.passive;
-                break;
-            case "etpe":
-                str += " " + this.strings.hithpeel;
-                break;
-            case "afel":
-                str += " " + this.strings.hiphil;
-                break;
-            case "shaf":
-                str += " " + this.strings.shafel;
-                break;
-            case "NA":
-            default:
-                console.error("No stem specified for verb:", element);
-        }
-        switch (element.vt) {
-            case "perf":
-                str += " " + this.strings.perfect;
-                break;
-            case "ptcp":
-                str += " " + this.strings.active_participle;
-                break;
-            case "wayq":
-                str += " " + this.strings.wayyiqtol;
-                break;
-            case "impf":
-                str += " " + this.strings.imperfect;
-                break;
-            case "infc":
-                str += " " + this.strings.infinitive_construct;
-                break;
-            case "impv":
-                str += " " + this.strings.imperative;
-                break;
-            case "infa":
-                str += " " + this.strings.infinitive_absolute;
-                break;
-            case "ptca":
-                str += " " + this.strings.passive_participle;
-                break;
-            case "NA":
-            default:
-        }
-        switch (element.ps) {
-            case "p1":
-                str += " " + this.strings.first_person;
-                break;
-            case "p2":
-                str += " " + this.strings.second_person;
-                break;
-            case "p3":
-                str += " " + this.strings.third_person;
-                break;
-            case "unknown":
-            case "NA":
-        }
-        switch (element.gn) {
-            case "m":
-                str += " " + this.strings.masculine;
-                break;
-            case "f":
-                str += " " + this.strings.feminine;
-                break;
-            case "NA":
-            default:
-        }
-        switch (element.nu) {
-            case "sg":
-                str += " " + this.strings.singular;
-                break;
-            case "pl":
-                str += " " + this.strings.plural;
-                break;
-            case "du":
-                str += " " + this.strings.dual;
-                break;
-            case "NA":
-        }
-        str += this.pronominalSuffixString(element);
-        if (element.hasPrecedingInterrogative) {
-            str += ", " + this.strings.interrogative;
-        }
-        return this.numeralConverter(str);
-    }
-    pronominalSuffixString(element) {
-        let str = "";
-        if (element.hasPronominalSuffix) {
-            str += " " + this.strings.suffix;
-            switch (element.prs_ps) {
-                case "p1":
-                    str += " " + this.strings.first_person;
-                    break;
-                case "p2":
-                    str += " " + this.strings.second_person;
-                    break;
-                case "p3":
-                    str += " " + this.strings.third_person;
-                    break;
-                case "unknown":
-                case "NA":
-            }
-            switch (element.prs_gn) {
-                case "m":
-                    str += " " + this.strings.masculine;
-                    break;
-                case "f":
-                    str += " " + this.strings.feminine;
-                    break;
-                case "NA":
-            }
-            switch (element.prs_nu) {
-                case "sg":
-                    str += " " + this.strings.singular;
-                    break;
-                case "pl":
-                    str += " " + this.strings.plural;
-                    break;
-                case "du":
-                    str += " " + this.strings.dual;
-                    break;
-                case "NA":
-            }
-        }
-        return str;
-    }
-}
-exports.OTVerboseParsingFormat = OTVerboseParsingFormat;
-
-
-/***/ }),
-
-/***/ 3211:
-/***/ ((__unused_webpack_module, exports) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.OTVerboseEnglish = exports.OTVerboseStringLabels = void 0;
-exports.OTVerboseStringLabels = {
-    noun: 'Noun',
-    interrogative: 'Interrogative',
-    pronominal_suffix: 'Suffix',
-    passive: 'Passive',
-    qal: 'Qal',
-    piel: 'Piel',
-    hiphil: 'Hiphil',
-    niphal: 'Niphal',
-    hithpael: 'Hithpael',
-    hishtaphel: 'Hishtaphel',
-    nithpael: 'Nithpael',
-    hithpeel: 'Hithpeel',
-    shafel: 'Shafel',
-    retentive: 'Retentive',
-    active: 'Active',
-    construct: 'Construct',
-    emphatic: 'Emphatic',
-    masculine: 'Masculine',
-    feminine: 'Feminine',
-    singular: 'Singular',
-    plural: 'Plural',
-    dual: 'Dual',
-    suffix: 'Pron Suff',
-    first_person: '1st',
-    second_person: '2nd',
-    third_person: '3rd',
-    perfect: 'Perfect',
-    active_participle: 'Active Participle',
-    wayyiqtol: 'Wayyiqtol',
-    imperfect: 'Imperfect',
-    infinitive_construct: 'Infinitive Construct',
-    imperative: 'Imperative',
-    infinitive_absolute: 'Infinitive Absolute',
-    passive_participle: 'Passive Participle',
-};
-exports.OTVerboseEnglish = {
-    noun: 'nominal',
-    interrogative: 'interrogative',
-    pronominal_suffix: 'suffix',
-    passive: 'passive',
-    qal: 'qal',
-    piel: 'piel',
-    hiphil: 'hiphil',
-    niphal: 'niphal',
-    hithpael: 'hithpael',
-    hishtaphel: 'hishtaphel',
-    nithpael: 'nithpael',
-    hithpeel: 'hithpeel',
-    shafel: 'shafel',
-    retentive: 'retentive',
-    active: 'active',
-    construct: 'construct',
-    emphatic: 'emphatic',
-    masculine: 'masculine',
-    feminine: 'feminine',
-    singular: 'singular',
-    plural: 'plural',
-    dual: 'dual',
-    suffix: 'pron suff',
-    first_person: '1st',
-    second_person: '2nd',
-    third_person: '3rd',
-    perfect: 'perfect',
-    active_participle: 'active participle',
-    wayyiqtol: 'wayyiqtol',
-    imperfect: 'imperfect',
-    infinitive_construct: 'infinitive construct',
-    imperative: 'imperative',
-    infinitive_absolute: 'infinitive absolute',
-    passive_participle: 'passive participle',
-};
-
-
-/***/ }),
-
-/***/ 3364:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ParsingFormatFactory = exports.PARSING_FORMAT_TEMPLATES = void 0;
-exports.parsingFormatFromId = parsingFormatFromId;
-const NTConciseParsingFormat_1 = __nccwpck_require__(578);
-const NTConciseParsingFormatStrings_1 = __nccwpck_require__(5118);
-const NTVerboseParsingFormat_1 = __nccwpck_require__(9120);
-const NTVerboseParsingFormatStrings_1 = __nccwpck_require__(4156);
-const OTConciseParsingFormat_1 = __nccwpck_require__(3671);
-const OTConciseParsingFormatStrings_1 = __nccwpck_require__(9701);
-const OTVerboseParsingFormat_1 = __nccwpck_require__(9941);
-const OTVerboseParsingFormatStrings_1 = __nccwpck_require__(3211);
-const NTTemplaticParsingFormatStrings_1 = __nccwpck_require__(3929);
-const NTTemplaticParsingFormat_1 = __nccwpck_require__(2219);
-const OTTemplaticParsingFormatStrings_1 = __nccwpck_require__(9942);
-const OTTemplaticParsingFormat_1 = __nccwpck_require__(5450);
-function parsingFormatFromId(id) {
-    for (let i = 0; i < exports.PARSING_FORMAT_TEMPLATES.length; i++) {
-        if (exports.PARSING_FORMAT_TEMPLATES[i].id === id) {
-            return exports.PARSING_FORMAT_TEMPLATES[i];
-        }
-    }
-    return undefined;
-}
-exports.PARSING_FORMAT_TEMPLATES = [
-    {
-        id: "nt-verbose",
-        name: "NT Verbose",
-        canon: "NT",
-        description: "Written-out Greek parsings (e.g., present active indicative 3s)",
-        strings: NTVerboseParsingFormatStrings_1.NTVerboseStringLabels,
-        placeholders: NTVerboseParsingFormatStrings_1.NTVerboseEnglish
-    },
-    {
-        id: "nt-concise",
-        name: "NT Concise",
-        canon: "NT",
-        description: "Abbreviated Greek parsings (e.g., V3SAPI, NANS)",
-        strings: NTVerboseParsingFormatStrings_1.NTVerboseStringLabels,
-        placeholders: NTConciseParsingFormatStrings_1.NTConciseEnglish
-    },
-    {
-        id: "nt-templatic",
-        name: "NT Templatic",
-        canon: "NT",
-        description: "Similar to NT Verbose, but you can customize the template.",
-        strings: NTTemplaticParsingFormatStrings_1.NTTemplativeStringLabels,
-        placeholders: NTTemplaticParsingFormatStrings_1.NTTemplaticEnglish
-    },
-    {
-        id: "ot-concise",
-        name: "OT Concise",
-        canon: "OT",
-        description: "Hebrew parsings shown in a condensed format (e.g., G20 for a qal imperfect 3ms)",
-        strings: OTConciseParsingFormatStrings_1.OTConciseStringLabels,
-        placeholders: OTConciseParsingFormatStrings_1.OTBasicEnglish
-    },
-    {
-        id: "ot-verbose",
-        name: "OT Verbose",
-        canon: "OT",
-        description: "Hebrew parsings shown in a verbose format (e.g., qal imperfect 3ms)",
-        strings: OTVerboseParsingFormatStrings_1.OTVerboseStringLabels,
-        placeholders: OTVerboseParsingFormatStrings_1.OTVerboseEnglish
-    },
-    {
-        id: "ot-templatic",
-        name: "OT Templatic",
-        canon: "OT",
-        description: "Similar to OT Verbose, but you can customize the template.",
-        strings: OTTemplaticParsingFormatStrings_1.OTTemplativeStringLabels,
-        placeholders: OTTemplaticParsingFormatStrings_1.OTTemplaticEnglish
-    },
-];
-class ParsingFormatFactory {
-    static createParsingFormat(id, numeralConverter, templateId, translations) {
-        switch (templateId) {
-            case 'nt-verbose':
-                return new NTVerboseParsingFormat_1.NTVerboseParsingFormat(id, templateId, numeralConverter, translations);
-            case 'ot-concise':
-                return new OTConciseParsingFormat_1.OTConciseParsingFormat(id, templateId, numeralConverter, translations);
-            case 'nt-concise':
-                return new NTConciseParsingFormat_1.NTConciseParsingFormat(id, templateId, numeralConverter, translations);
-            case 'ot-verbose':
-                return new OTVerboseParsingFormat_1.OTVerboseParsingFormat(id, templateId, numeralConverter, translations);
-            case 'nt-templatic':
-                return new NTTemplaticParsingFormat_1.NTTemplaticParsingFormat(id, templateId, numeralConverter, translations);
-            case 'ot-templatic':
-                return new OTTemplaticParsingFormat_1.OTTemplaticParsingFormat(id, templateId, numeralConverter, translations);
-            default:
-                throw new Error(`Unknown parsing format template: ${templateId}`);
-        }
-    }
-}
-exports.ParsingFormatFactory = ParsingFormatFactory;
-
-
-/***/ }),
-
-/***/ 4833:
-/***/ ((__unused_webpack_module, exports) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ParsingFormatBase = void 0;
-class ParsingFormatBase {
-    _id;
-    _template;
-    _canon;
-    constructor(id, template, canon) {
-        this._id = id;
-        this._template = template;
-        this._canon = canon;
-    }
-    get id() {
-        return this._id;
-    }
-    get template() {
-        return this._template;
-    }
-    get canon() {
-        return this._canon;
-    }
-}
-exports.ParsingFormatBase = ParsingFormatBase;
-
-
-/***/ }),
-
 /***/ 2613:
 /***/ ((module) => {
 
@@ -35432,10 +32927,2240 @@ class Octokit {
 }
 
 
-// EXTERNAL MODULE: ../application/models/ProjectConfiguration.ts
-var ProjectConfiguration = __nccwpck_require__(7000);
-// EXTERNAL MODULE: ../application/models/Canons.ts
-var Canons = __nccwpck_require__(961);
+;// CONCATENATED MODULE: ../application/models/VerseReference.ts
+
+class VerseReference {
+    ubs_book;
+    chapter;
+    verse;
+    canon;
+    constructor(ubs_book, chapter, verse, canon) {
+        this.ubs_book = ubs_book;
+        this.chapter = chapter;
+        this.verse = verse;
+        this.canon = canon;
+    }
+    equals(other) {
+        return this.ubs_book === other.ubs_book
+            && this.chapter === other.chapter
+            && this.verse === other.verse
+            && this.canon === other.canon;
+    }
+    /// NB: will never return LXX
+    static canonFromBook(book) {
+        for (let i = 0; i < CANONS.length; i++) {
+            if (CANONS[i].hasBook(book)) {
+                return CANONS[i];
+            }
+        }
+        return undefined;
+    }
+    get canonData() {
+        return getCanon(this.canon);
+    }
+    nextVerse() {
+        return this.canonData.nextVerse(this);
+    }
+    previousVerse() {
+        return this.canonData.previousVerse(this);
+    }
+    get latinBookName() {
+        return VerseReference.ubsBookToLatin(this.ubs_book);
+    }
+    get xmlId() {
+        return `${this.canon}-${this.ubs_book}-${this.chapter}-${this.verse}`;
+    }
+    toString() {
+        return `${this.canon} ${this.ubs_book} ${this.chapter}:${this.verse}`;
+    }
+    static fromString(str) {
+        if (str === undefined) {
+            return undefined;
+        }
+        const regex = /^([A-Z]{2,3})\s([A-Z0-9]{3})\s(\d+):(\d+)$/;
+        const match = str.match(regex);
+        if (match) {
+            const canon = match[1];
+            const ubs_book = match[2];
+            const chapter = parseInt(match[3]);
+            const verse = parseInt(match[4]);
+            return new VerseReference(ubs_book, chapter, verse, canon);
+        }
+        return undefined;
+    }
+    static ubsBookToLatin(ubsBook) {
+        switch (ubsBook) {
+            case 'GEN': return 'Genesis';
+            case 'EXO': return 'Exodus';
+            case 'LEV': return 'Leviticus';
+            case 'NUM': return 'Numeri';
+            case 'DEU': return 'Deuteronomium';
+            case 'JOS': return 'Josua';
+            case 'JDG': return 'Judices';
+            case 'RUT': return 'Ruth';
+            case '1SA': return 'Samuel_I';
+            case '2SA': return 'Samuel_II';
+            case '1KI': return 'Reges_I';
+            case '2KI': return 'Reges_II';
+            case '1CH': return 'Chronica_I';
+            case '2CH': return 'Chronica_II';
+            case 'EZR': return 'Esra';
+            case 'NEH': return 'Nehemia';
+            case 'EST': return 'Esther';
+            case 'JOB': return 'Iob';
+            case 'PSA': return 'Psalmi';
+            case 'PRO': return 'Proverbia';
+            case 'ECC': return 'Ecclesiastes';
+            case 'SNG': return 'Canticum';
+            case 'ISA': return 'Jesaia';
+            case 'JER': return 'Jeremia';
+            case 'LAM': return 'Threni';
+            case 'EZK': return 'Ezechiel';
+            case 'DAN': return 'Daniel';
+            case 'HOS': return 'Hosea';
+            case 'JOL': return 'Joel';
+            case 'AMO': return 'Amos';
+            case 'OBA': return 'Obadia';
+            case 'JON': return 'Jona';
+            case 'MIC': return 'Micha';
+            case 'NAM': return 'Nahum';
+            case 'HAB': return 'Habakuk';
+            case 'ZEP': return 'Zephania';
+            case 'HAG': return 'Haggai';
+            case 'ZEC': return 'Sacharia';
+            case 'MAL': return 'Maleachi';
+            case 'MAT': return 'secundum Matthæum';
+            case 'MRK': return 'secundum Marcum';
+            case 'LUK': return 'secundum Lucam';
+            case 'JHN': return 'secundum Ioannem';
+            case 'ACT': return 'Actus';
+            case 'ROM': return 'ad Romanos';
+            case '1CO': return '1 ad Corinthios';
+            case '2CO': return '2 ad Corinthios';
+            case 'GAL': return 'ad Galatas';
+            case 'EPH': return 'ad Ephesios';
+            case 'PHP': return 'ad Philippenses';
+            case 'COL': return 'ad Colossenses';
+            case '1TH': return '1 ad Thessalonicenses';
+            case '2TH': return '2 ad Thessalonicenses';
+            case '1TI': return '1 ad Timotheum';
+            case '2TI': return '2 ad Timotheum';
+            case 'TIT': return 'ad Titum';
+            case 'PHM': return 'ad Philemonem';
+            case 'HEB': return 'ad Hebræos';
+            case 'JAS': return 'Iacobi';
+            case '1PE': return '1 Petri';
+            case '2PE': return '2 Petri';
+            case '1JN': return '1 Ioannis';
+            case '2JN': return '2 Ioannis';
+            case '3JN': return '3 Ioannis';
+            case 'JUD': return 'Iudæ';
+            case 'REV': return 'Apocalypsis';
+        }
+    }
+}
+
+;// CONCATENATED MODULE: ../application/models/Canons.ts
+
+class CanonData {
+    _name;
+    _books;
+    _max_chapter;
+    _max_verse;
+    constructor(name, books, max_chapter, max_verse) {
+        this._name = name;
+        this._books = books;
+        this._max_chapter = max_chapter;
+        this._max_verse = max_verse;
+    }
+    get name() {
+        return this._name;
+    }
+    get books() {
+        return this._books;
+    }
+    hasBook(book) {
+        return this._books.includes(book);
+    }
+    fallbackVerseReference() {
+        return new VerseReference(this._books[0], 1, 1, this._name);
+    }
+    nextBook(book) {
+        const index = this._books.indexOf(book);
+        if (index < 0) {
+            return 'GEN';
+        }
+        if (index < this._books.length - 1) {
+            return this._books[index + 1];
+        }
+        return this._books[0];
+    }
+    previousBook(book) {
+        const index = this._books.indexOf(book);
+        if (index < 0) {
+            return 'GEN';
+        }
+        if (index > 0) {
+            return this._books[index - 1];
+        }
+        return this._books[this._books.length - 1];
+    }
+    lastChapter(book) {
+        return this._max_chapter[book];
+    }
+    lastVerse(book, chapter) {
+        const versesN = this._max_verse[book];
+        if (versesN === undefined) {
+            return undefined;
+        }
+        if (versesN.length > (chapter - 1)) {
+            return versesN[chapter - 1];
+        }
+        else {
+            console.error(`BookNavigator.lastVerse: no data for ${book} ${chapter}.`);
+            return undefined;
+        }
+    }
+    nextVerse(reference) {
+        const returnValue = new VerseReference(reference.ubs_book, reference.chapter, reference.verse + 1, this._name);
+        const lastVerseInChapter = this.lastVerse(returnValue.ubs_book, returnValue.chapter);
+        if (lastVerseInChapter === undefined) {
+            console.error(`BookNavigator.nextVerse: lastVerseInChapter is null for ${reference.ubs_book} ${reference.chapter}`);
+            return reference;
+        }
+        if (returnValue.verse > lastVerseInChapter) {
+            returnValue.chapter = reference.chapter + 1;
+            returnValue.verse = 1;
+        }
+        const lastChapter = this.lastChapter(returnValue.ubs_book);
+        if (lastChapter === undefined) {
+            console.error(`BookNavigator.nextVerse: lastChapter is null for ${reference.ubs_book}`);
+            return reference;
+        }
+        if (returnValue.chapter > lastChapter) {
+            const nextBook = this.nextBook(returnValue.ubs_book);
+            returnValue.ubs_book = nextBook;
+            returnValue.chapter = 1;
+            returnValue.verse = 1;
+        }
+        return returnValue;
+    }
+    previousVerse(reference) {
+        /// the only real wrap-around situation is if we're in 1:1
+        if (reference.chapter === 1 && reference.verse === 1) {
+            const previousBook = this.previousBook(reference.ubs_book);
+            const lastChapter = this.lastChapter(previousBook);
+            if (lastChapter === undefined) {
+                console.error(`BookNavigator.previousVerse: lastChapter is undefined for ${reference.ubs_book}`);
+                return reference;
+            }
+            const lastVerseInChapter = this.lastVerse(previousBook, lastChapter);
+            if (lastVerseInChapter === undefined) {
+                console.error(`BookNavigator.previousVerse: lastVerseInChapter is undefined for ${reference.ubs_book} ${reference.chapter}`);
+                return reference;
+            }
+            return new VerseReference(previousBook, lastChapter, lastVerseInChapter, this._name);
+        }
+        const returnValue = new VerseReference(reference.ubs_book, reference.chapter, reference.verse - 1, this._name);
+        if (returnValue.verse < 1) {
+            returnValue.chapter = reference.chapter - 1;
+            const lastVerseInChapter = this.lastVerse(returnValue.ubs_book, returnValue.chapter);
+            if (lastVerseInChapter === undefined) {
+                console.error(`BookNavigator.previousVerse: lastVerseInChapter is null for ${reference.ubs_book} ${reference.chapter}`);
+                return reference;
+            }
+            returnValue.verse = lastVerseInChapter;
+        }
+        return returnValue;
+    }
+}
+const NT = new CanonData("NT", ['MAT', 'MRK', 'LUK', 'JHN', 'ACT', 'ROM', '1CO', '2CO', 'GAL', 'EPH', 'PHP', 'COL', '1TH', '2TH', '1TI', '2TI', 'TIT', 'PHM', 'HEB', 'JAS', '1PE', '2PE', '1JN', '2JN', '3JN', 'JUD', 'REV'], { "MAT": 28, "MRK": 16, "LUK": 24, "JHN": 21, "ACT": 28, "ROM": 16, "1CO": 16, "2CO": 13, "GAL": 6, "EPH": 6, "PHP": 4, "COL": 4, "1TH": 5, "2TH": 3, "1TI": 6, "2TI": 4, "TIT": 3, "PHM": 1, "HEB": 13, "JAS": 5, "1PE": 5, "2PE": 3, "1JN": 5, "2JN": 1, "3JN": 1, "JUD": 1, "REV": 22 }, { "1CO": [31, 16, 23, 21, 13, 20, 40, 13, 27, 33, 34, 31, 13, 40, 58, 24], "1JN": [10, 29, 24, 21, 21], "1PE": [25, 25, 22, 19, 14], "1TH": [10, 20, 13, 18, 28], "1TI": [20, 15, 16, 16, 25, 21], "2CO": [24, 17, 18, 18, 21, 18, 16, 24, 15, 18, 33, 21, 13], "2JN": [13], "2PE": [21, 22, 18], "2TH": [12, 17, 18], "2TI": [18, 26, 17, 22], "3JN": [15], "ACT": [26, 47, 26, 37, 42, 15, 60, 40, 43, 48, 30, 25, 52, 28, 41, 40, 34, 28, 40, 38, 40, 30, 35, 27, 27, 32, 44, 31], "COL": [29, 23, 25, 18], "EPH": [23, 22, 21, 32, 33, 24], "GAL": [24, 21, 29, 31, 26, 18], "HEB": [14, 18, 19, 16, 14, 20, 28, 13, 28, 39, 40, 29, 25], "JAS": [27, 26, 18, 17, 20], "JHN": [51, 25, 36, 54, 47, 71, 52, 59, 41, 42, 57, 50, 38, 31, 27, 33, 26, 40, 42, 31, 25], "JUD": [25], "LUK": [80, 52, 38, 44, 39, 49, 50, 56, 62, 42, 54, 59, 35, 35, 32, 31, 37, 43, 48, 47, 38, 71, 56, 53], "MRK": [45, 28, 35, 41, 43, 56, 37, 38, 50, 52, 33, 44, 37, 72, 47, 20], "MAT": [25, 23, 17, 25, 48, 34, 29, 34, 38, 42, 30, 50, 58, 36, 39, 28, 27, 35, 30, 34, 46, 46, 39, 51, 46, 75, 66, 20], "PHP": [30, 30, 21, 23], "PHM": [25], "REV": [20, 29, 22, 11, 14, 17, 17, 13, 21, 11, 19, 18, 18, 20, 8, 21, 18, 24, 21, 15, 27, 21], "ROM": [32, 29, 31, 25, 21, 23, 25, 39, 33, 21, 36, 21, 14, 23, 33, 24], "TIT": [16, 15, 15] });
+const OT = new CanonData("OT", ['GEN', 'EXO', 'LEV', 'NUM', 'DEU', 'JOS', 'JDG', 'RUT', '1SA', '2SA', '1KI', '2KI', '1CH', '2CH', 'EZR', 'NEH', 'EST', 'JOB', 'PSA', 'PRO', 'ECC', 'SNG', 'ISA', 'JER', 'LAM', 'EZK', 'DAN', 'HOS', 'JOL', 'AMO', 'OBA', 'JON', 'MIC', 'NAM', 'HAB', 'ZEP', 'HAG', 'ZEC', 'MAL'], { "GEN": 50, "EXO": 40, "LEV": 27, "NUM": 36, "DEU": 34, "JOS": 24, "JDG": 21, "1SA": 31, "2SA": 24, "1KI": 22, "2KI": 25, "ISA": 66, "JER": 52, "EZK": 48, "HOS": 14, "JOL": 4, "AMO": 9, "OBA": 1, "JON": 4, "MIC": 7, "NAM": 3, "HAB": 3, "ZEP": 3, "HAG": 2, "ZEC": 14, "MAL": 3, "PSA": 150, "JOB": 42, "PRO": 31, "RUT": 4, "SNG": 8, "ECC": 12, "LAM": 5, "EST": 10, "DAN": 12, "EZR": 10, "NEH": 13, "1CH": 29, "2CH": 36 }, { "1CH": [54, 55, 24, 43, 41, 66, 40, 40, 44, 14, 47, 41, 14, 17, 29, 43, 27, 17, 19, 8, 30, 19, 32, 31, 31, 32, 34, 21, 30], "1KI": [53, 46, 28, 20, 32, 38, 51, 66, 28, 29, 43, 33, 34, 31, 34, 34, 24, 46, 21, 43, 29, 54], "1SA": [28, 36, 21, 22, 12, 21, 17, 22, 27, 27, 15, 25, 23, 52, 35, 23, 58, 30, 24, 42, 16, 23, 28, 23, 44, 25, 12, 25, 11, 31, 13], "2CH": [18, 17, 17, 22, 14, 42, 22, 18, 31, 19, 23, 16, 23, 14, 19, 14, 19, 34, 11, 37, 20, 12, 21, 27, 28, 23, 9, 27, 36, 27, 21, 33, 25, 33, 27, 23], "2KI": [18, 25, 27, 44, 27, 33, 20, 29, 37, 36, 20, 22, 25, 29, 38, 20, 41, 37, 37, 21, 26, 20, 37, 20, 30], "2SA": [27, 32, 39, 12, 25, 23, 29, 18, 13, 19, 27, 31, 39, 33, 37, 23, 29, 32, 44, 26, 22, 51, 39, 25], "AMO": [15, 16, 15, 13, 27, 14, 17, 14, 15], "DAN": [21, 49, 33, 34, 30, 29, 28, 27, 27, 21, 45, 13], "DEU": [46, 37, 29, 49, 33, 25, 26, 20, 29, 22, 32, 31, 19, 29, 23, 22, 20, 22, 21, 20, 23, 29, 26, 22, 19, 19, 26, 69, 28, 20, 30, 52, 29, 12], "ECC": [18, 26, 22, 17, 19, 12, 29, 17, 18, 20, 10, 14], "EST": [22, 23, 15, 17, 14, 14, 10, 17, 32, 3], "EXO": [22, 25, 22, 31, 23, 30, 29, 28, 35, 29, 10, 51, 22, 31, 27, 36, 16, 27, 25, 26, 37, 30, 33, 18, 40, 37, 21, 43, 46, 38, 18, 35, 23, 35, 35, 38, 29, 31, 43, 38], "EZK": [28, 10, 27, 17, 17, 14, 27, 18, 11, 22, 25, 28, 23, 23, 8, 63, 24, 32, 14, 44, 37, 31, 49, 27, 17, 21, 36, 26, 21, 26, 18, 32, 33, 31, 15, 38, 28, 23, 29, 49, 26, 20, 27, 31, 25, 24, 23, 35], "EZR": [11, 70, 13, 24, 17, 22, 28, 36, 15, 44], "GEN": [31, 25, 24, 26, 32, 22, 24, 22, 29, 32, 32, 20, 18, 24, 21, 16, 27, 33, 38, 18, 34, 24, 20, 67, 34, 35, 46, 22, 35, 43, 54, 33, 20, 31, 29, 43, 36, 30, 23, 23, 57, 38, 34, 34, 28, 34, 31, 22, 33, 26], "HAB": [17, 20, 19], "HAG": [15, 23], "HOS": [9, 25, 5, 19, 15, 11, 16, 14, 17, 15, 11, 15, 15, 10], "ISA": [31, 22, 26, 6, 30, 13, 25, 23, 20, 34, 16, 6, 22, 32, 9, 14, 14, 7, 25, 6, 17, 25, 18, 23, 12, 21, 13, 29, 24, 33, 9, 20, 24, 17, 10, 22, 38, 22, 8, 31, 29, 25, 28, 28, 25, 13, 15, 22, 26, 11, 23, 15, 12, 17, 13, 12, 21, 14, 21, 22, 11, 12, 19, 11, 25, 24], "JDG": [36, 23, 31, 24, 31, 40, 25, 35, 57, 18, 40, 15, 25, 20, 20, 31, 13, 31, 30, 48, 25], "JER": [19, 37, 25, 31, 31, 30, 34, 23, 25, 25, 23, 17, 27, 22, 21, 21, 27, 23, 15, 18, 14, 30, 40, 10, 38, 24, 22, 17, 32, 24, 40, 44, 26, 22, 19, 32, 21, 28, 18, 16, 18, 22, 13, 30, 5, 28, 7, 47, 39, 46, 64, 34], "JOB": [22, 13, 26, 21, 27, 30, 21, 22, 35, 22, 20, 25, 28, 22, 35, 22, 16, 21, 29, 29, 34, 30, 17, 25, 6, 14, 23, 28, 25, 31, 40, 22, 33, 37, 16, 33, 24, 41, 30, 32, 26, 17], "JOL": [20, 27, 5, 21], "JON": [16, 11, 10, 11], "JOS": [18, 24, 17, 24, 15, 27, 26, 35, 27, 43, 23, 24, 33, 15, 63, 10, 18, 28, 51, 9, 45, 34, 16, 33], "LAM": [22, 22, 66, 22, 22], "LEV": [17, 16, 17, 35, 26, 23, 38, 36, 24, 20, 47, 8, 59, 57, 33, 34, 16, 30, 37, 27, 24, 33, 44, 23, 55, 46, 34], "MAL": [14, 17, 24], "MIC": [16, 13, 12, 14, 14, 16, 20], "NAM": [14, 14, 19], "NEH": [11, 20, 38, 17, 19, 19, 72, 18, 37, 40, 36, 47, 31], "NUM": [54, 34, 51, 49, 31, 27, 89, 26, 23, 36, 35, 16, 33, 45, 41, 35, 28, 32, 22, 29, 35, 41, 30, 25, 19, 65, 23, 31, 39, 17, 54, 42, 56, 29, 34, 13], "OBA": [21], "PRO": [33, 22, 35, 27, 23, 35, 27, 36, 18, 32, 31, 28, 25, 35, 33, 33, 28, 24, 29, 30, 31, 29, 35, 34, 28, 28, 27, 28, 27, 33, 31], "PSA": [6, 12, 9, 9, 13, 11, 18, 10, 21, 18, 7, 9, 6, 7, 5, 11, 15, 51, 15, 10, 14, 32, 6, 10, 22, 12, 14, 9, 11, 13, 25, 11, 22, 23, 28, 13, 40, 23, 14, 18, 14, 12, 5, 27, 18, 12, 10, 15, 21, 23, 21, 11, 7, 9, 24, 14, 12, 12, 18, 14, 9, 13, 12, 11, 14, 20, 8, 36, 37, 6, 24, 20, 28, 23, 11, 13, 21, 72, 13, 20, 17, 8, 19, 13, 14, 17, 7, 19, 53, 17, 16, 16, 5, 23, 11, 13, 12, 9, 9, 5, 8, 29, 22, 35, 45, 48, 43, 14, 31, 7, 10, 10, 9, 8, 18, 19, 2, 29, 176, 7, 8, 9, 4, 8, 5, 6, 5, 6, 8, 8, 3, 18, 3, 3, 21, 26, 9, 8, 24, 14, 10, 8, 12, 15, 21, 10, 20, 14, 9, 6], "RUT": [22, 23, 18, 22], "SNG": [17, 17, 11, 16, 16, 12, 14, 14], "ZEC": [17, 17, 10, 14, 11, 15, 14, 23, 17, 12, 17, 14, 9, 21], "ZEP": [18, 15, 20] });
+/// TODO HACK these are just the OT values, and are surely wrong
+const LXX = new CanonData("LXX", ['GEN', 'EXO', 'LEV', 'NUM', 'DEU', 'JOS', 'JDG', 'RUT', '1SA', '2SA', '1KI', '2KI', '1CH', '2CH', 'EZR', 'NEH', 'EST', 'JOB', 'PSA', 'PRO', 'ECC', 'SNG', 'ISA', 'JER', 'LAM', 'EZK', 'DAN', 'HOS', 'JOL', 'AMO', 'OBA', 'JON', 'MIC', 'NAM', 'HAB', 'ZEP', 'HAG', 'ZEC', 'MAL'], { "GEN": 50, "EXO": 40, "LEV": 27, "NUM": 36, "DEU": 34, "JOS": 24, "JDG": 21, "1SA": 31, "2SA": 24, "1KI": 22, "2KI": 25, "ISA": 66, "JER": 52, "EZK": 48, "HOS": 14, "JOL": 4, "AMO": 9, "OBA": 1, "JON": 4, "MIC": 7, "NAM": 3, "HAB": 3, "ZEP": 3, "HAG": 2, "ZEC": 14, "MAL": 3, "PSA": 150, "JOB": 42, "PRO": 31, "RUT": 4, "SNG": 8, "ECC": 12, "LAM": 5, "EST": 10, "DAN": 12, "EZR": 10, "NEH": 13, "1CH": 29, "2CH": 36 }, { "1CH": [54, 55, 24, 43, 41, 66, 40, 40, 44, 14, 47, 41, 14, 17, 29, 43, 27, 17, 19, 8, 30, 19, 32, 31, 31, 32, 34, 21, 30], "1KI": [53, 46, 28, 20, 32, 38, 51, 66, 28, 29, 43, 33, 34, 31, 34, 34, 24, 46, 21, 43, 29, 54], "1SA": [28, 36, 21, 22, 12, 21, 17, 22, 27, 27, 15, 25, 23, 52, 35, 23, 58, 30, 24, 42, 16, 23, 28, 23, 44, 25, 12, 25, 11, 31, 13], "2CH": [18, 17, 17, 22, 14, 42, 22, 18, 31, 19, 23, 16, 23, 14, 19, 14, 19, 34, 11, 37, 20, 12, 21, 27, 28, 23, 9, 27, 36, 27, 21, 33, 25, 33, 27, 23], "2KI": [18, 25, 27, 44, 27, 33, 20, 29, 37, 36, 20, 22, 25, 29, 38, 20, 41, 37, 37, 21, 26, 20, 37, 20, 30], "2SA": [27, 32, 39, 12, 25, 23, 29, 18, 13, 19, 27, 31, 39, 33, 37, 23, 29, 32, 44, 26, 22, 51, 39, 25], "AMO": [15, 16, 15, 13, 27, 14, 17, 14, 15], "DAN": [21, 49, 33, 34, 30, 29, 28, 27, 27, 21, 45, 13], "DEU": [46, 37, 29, 49, 33, 25, 26, 20, 29, 22, 32, 31, 19, 29, 23, 22, 20, 22, 21, 20, 23, 29, 26, 22, 19, 19, 26, 69, 28, 20, 30, 52, 29, 12], "ECC": [18, 26, 22, 17, 19, 12, 29, 17, 18, 20, 10, 14], "EST": [22, 23, 15, 17, 14, 14, 10, 17, 32, 3], "EXO": [22, 25, 22, 31, 23, 30, 29, 28, 35, 29, 10, 51, 22, 31, 27, 36, 16, 27, 25, 26, 37, 30, 33, 18, 40, 37, 21, 43, 46, 38, 18, 35, 23, 35, 35, 38, 29, 31, 43, 38], "EZK": [28, 10, 27, 17, 17, 14, 27, 18, 11, 22, 25, 28, 23, 23, 8, 63, 24, 32, 14, 44, 37, 31, 49, 27, 17, 21, 36, 26, 21, 26, 18, 32, 33, 31, 15, 38, 28, 23, 29, 49, 26, 20, 27, 31, 25, 24, 23, 35], "EZR": [11, 70, 13, 24, 17, 22, 28, 36, 15, 44], "GEN": [31, 25, 24, 26, 32, 22, 24, 22, 29, 32, 32, 20, 18, 24, 21, 16, 27, 33, 38, 18, 34, 24, 20, 67, 34, 35, 46, 22, 35, 43, 54, 33, 20, 31, 29, 43, 36, 30, 23, 23, 57, 38, 34, 34, 28, 34, 31, 22, 33, 26], "HAB": [17, 20, 19], "HAG": [15, 23], "HOS": [9, 25, 5, 19, 15, 11, 16, 14, 17, 15, 11, 15, 15, 10], "ISA": [31, 22, 26, 6, 30, 13, 25, 23, 20, 34, 16, 6, 22, 32, 9, 14, 14, 7, 25, 6, 17, 25, 18, 23, 12, 21, 13, 29, 24, 33, 9, 20, 24, 17, 10, 22, 38, 22, 8, 31, 29, 25, 28, 28, 25, 13, 15, 22, 26, 11, 23, 15, 12, 17, 13, 12, 21, 14, 21, 22, 11, 12, 19, 11, 25, 24], "JDG": [36, 23, 31, 24, 31, 40, 25, 35, 57, 18, 40, 15, 25, 20, 20, 31, 13, 31, 30, 48, 25], "JER": [19, 37, 25, 31, 31, 30, 34, 23, 25, 25, 23, 17, 27, 22, 21, 21, 27, 23, 15, 18, 14, 30, 40, 10, 38, 24, 22, 17, 32, 24, 40, 44, 26, 22, 19, 32, 21, 28, 18, 16, 18, 22, 13, 30, 5, 28, 7, 47, 39, 46, 64, 34], "JOB": [22, 13, 26, 21, 27, 30, 21, 22, 35, 22, 20, 25, 28, 22, 35, 22, 16, 21, 29, 29, 34, 30, 17, 25, 6, 14, 23, 28, 25, 31, 40, 22, 33, 37, 16, 33, 24, 41, 30, 32, 26, 17], "JOL": [20, 27, 5, 21], "JON": [16, 11, 10, 11], "JOS": [18, 24, 17, 24, 15, 27, 26, 35, 27, 43, 23, 24, 33, 15, 63, 10, 18, 28, 51, 9, 45, 34, 16, 33], "LAM": [22, 22, 66, 22, 22], "LEV": [17, 16, 17, 35, 26, 23, 38, 36, 24, 20, 47, 8, 59, 57, 33, 34, 16, 30, 37, 27, 24, 33, 44, 23, 55, 46, 34], "MAL": [14, 17, 24], "MIC": [16, 13, 12, 14, 14, 16, 20], "NAM": [14, 14, 19], "NEH": [11, 20, 38, 17, 19, 19, 72, 18, 37, 40, 36, 47, 31], "NUM": [54, 34, 51, 49, 31, 27, 89, 26, 23, 36, 35, 16, 33, 45, 41, 35, 28, 32, 22, 29, 35, 41, 30, 25, 19, 65, 23, 31, 39, 17, 54, 42, 56, 29, 34, 13], "OBA": [21], "PRO": [33, 22, 35, 27, 23, 35, 27, 36, 18, 32, 31, 28, 25, 35, 33, 33, 28, 24, 29, 30, 31, 29, 35, 34, 28, 28, 27, 28, 27, 33, 31], "PSA": [6, 12, 9, 9, 13, 11, 18, 10, 21, 18, 7, 9, 6, 7, 5, 11, 15, 51, 15, 10, 14, 32, 6, 10, 22, 12, 14, 9, 11, 13, 25, 11, 22, 23, 28, 13, 40, 23, 14, 18, 14, 12, 5, 27, 18, 12, 10, 15, 21, 23, 21, 11, 7, 9, 24, 14, 12, 12, 18, 14, 9, 13, 12, 11, 14, 20, 8, 36, 37, 6, 24, 20, 28, 23, 11, 13, 21, 72, 13, 20, 17, 8, 19, 13, 14, 17, 7, 19, 53, 17, 16, 16, 5, 23, 11, 13, 12, 9, 9, 5, 8, 29, 22, 35, 45, 48, 43, 14, 31, 7, 10, 10, 9, 8, 18, 19, 2, 29, 176, 7, 8, 9, 4, 8, 5, 6, 5, 6, 8, 8, 3, 18, 3, 3, 21, 26, 9, 8, 24, 14, 10, 8, 12, 15, 21, 10, 20, 14, 9, 6], "RUT": [22, 23, 18, 22], "SNG": [17, 17, 11, 16, 16, 12, 14, 14], "ZEC": [17, 17, 10, 14, 11, 15, 14, 23, 17, 12, 17, 14, 9, 21], "ZEP": [18, 15, 20] });
+function getCanon(canon) {
+    switch (canon) {
+        case "NT":
+            return NT;
+        case "OT":
+            return OT;
+        case "LXX":
+            return LXX;
+    }
+}
+const CANON_NAMES = (/* unused pure expression or super */ null && (['OT', 'NT', 'LXX']));
+const CANONS = [OT, NT, LXX];
+const ALL_BOOK_CODES = OT.books.concat(NT.books.concat(LXX.books));
+function canonicalOrderSort(a, b) {
+    const aIndex = ALL_BOOK_CODES.indexOf(a);
+    const bIndex = ALL_BOOK_CODES.indexOf(b);
+    return aIndex - bIndex;
+}
+
+;// CONCATENATED MODULE: ../application/models/assets/default_latex_template.json
+const default_latex_template_namespaceObject = {};
+;// CONCATENATED MODULE: ../application/models/assets/style.json
+const style_namespaceObject = {};
+;// CONCATENATED MODULE: ../application/models/PublicationConfiguration.ts
+
+
+class PublicationConfiguration {
+    _project;
+    _id;
+    _footnoteMarkers;
+    _polyglossiaOtherLanguage;
+    _chapterHeader;
+    _publication_project_font = "Charis SIL";
+    _publication_biblical_font = "SBL BibLit";
+    _latex_template;
+    _parsing_formats = new Map();
+    _footnote_style;
+    _css_template;
+    constructor(id, project) {
+        this._id = id;
+        this._project = project;
+        this._footnoteMarkers = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "aa", "bb", "cc", "dd", "ee", "ff", "gg", "hh", "ii", "jj", "kk", "ll", "mm", "nn", "oo", "pp", "qq", "rr", "ss", "tt", "uu", "vv", "ww", "xx", "yy", "zz"];
+        this._polyglossiaOtherLanguage = "english";
+        this._chapterHeader = "Chapter __CHAPTER__";
+        this._footnote_style = "lettered-by-verse";
+        this._latex_template = PublicationConfiguration.default_latex_template;
+        this._css_template = PublicationConfiguration.default_css_template;
+    }
+    get id() {
+        return this._id;
+    }
+    get project() {
+        return this._project;
+    }
+    get footnoteMarkers() {
+        return this._footnoteMarkers;
+    }
+    get polyglossiaOtherLanguage() {
+        return this._polyglossiaOtherLanguage;
+    }
+    get chapterHeader() {
+        return this._chapterHeader;
+    }
+    get parsing_formats() {
+        return this._parsing_formats;
+    }
+    get latex_template() {
+        return this._latex_template;
+    }
+    get publicationProjectFont() {
+        return this._publication_project_font;
+    }
+    get css_template() {
+        return this._css_template;
+    }
+    set css_template(value) {
+        this._css_template = value;
+    }
+    set publicationProjectFont(font) {
+        this._publication_project_font = font;
+    }
+    get publicationBiblicalFont() {
+        return this._publication_biblical_font;
+    }
+    get footnote_style() {
+        return this._footnote_style;
+    }
+    set footnote_style(value) {
+        this._footnote_style = value;
+    }
+    set publicationBiblicalFont(font) {
+        this._publication_biblical_font = font;
+    }
+    set latex_template(value) {
+        this._latex_template = value;
+    }
+    set footnoteMarkers(markers) {
+        this._footnoteMarkers = markers;
+    }
+    set polyglossiaOtherLanguage(other) {
+        this._polyglossiaOtherLanguage = other;
+    }
+    set chapterHeader(header) {
+        this._chapterHeader = header;
+    }
+    get canonsWithoutParsingFormats() {
+        const canons = this._project.canons.filter(c => !this._parsing_formats.has(c));
+        return canons;
+    }
+    get canonsWithParsingFormats() {
+        const canons = this._project.canons.filter(c => this._parsing_formats.has(c));
+        return canons;
+    }
+    getParsingFormat(canon) {
+        const parsingFormatId = this._parsing_formats.get(canon);
+        if (parsingFormatId === undefined) {
+            return undefined;
+        }
+        return this._project.parsingFormats.getParsingFormatFromId(parsingFormatId);
+    }
+    getChapterHeader(chapter) {
+        const str = this.chapterHeader.replace("__CHAPTER__", chapter.toString());
+        return this._project.replaceNumerals(str);
+    }
+    getFootnoteMarker(index) {
+        return this.footnoteMarkers[index % this.footnoteMarkers.length];
+    }
+    demoChapterHeader(number) {
+        return this.chapterHeader.replace('__CHAPTER__', this.project.replaceNumerals(number));
+    }
+    demoFootnoteMarkers(howmany) {
+        const markers = this.footnoteMarkers;
+        let result = "";
+        for (let i = 0; i < howmany; i++) {
+            result += markers[i % markers.length] + ' ';
+        }
+        return result;
+    }
+    toObject() {
+        const parsing_formats = {};
+        this._parsing_formats.forEach((value, key) => {
+            parsing_formats[key] = value;
+        });
+        return {
+            footnoteMarkers: this._footnoteMarkers,
+            polyglossiaOtherLanguage: this._polyglossiaOtherLanguage,
+            chapterHeader: this._chapterHeader,
+            publication_project_font: this._publication_project_font,
+            publication_biblical_font: this._publication_biblical_font,
+            latex_template: this._latex_template,
+            parsing_formats: parsing_formats,
+            css_template: this._css_template,
+            footnote_style: this._footnote_style,
+        };
+    }
+    static fromRow(row, id, project) {
+        const pc = new PublicationConfiguration(id, project);
+        pc._footnoteMarkers = row.footnoteMarkers || [];
+        pc._polyglossiaOtherLanguage = row.polyglossiaOtherLanguage;
+        pc._chapterHeader = row.chapterHeader;
+        pc.publicationProjectFont = row.publication_project_font;
+        pc.publicationBiblicalFont = row.publication_biblical_font;
+        pc.latex_template = row.latex_template || PublicationConfiguration.default_latex_template;
+        pc.css_template = row.css_template || PublicationConfiguration.default_css_template;
+        pc.footnote_style = row.footnote_style || "lettered-by-verse";
+        pc._parsing_formats = new Map();
+        for (const [key, value] of Object.entries(row.parsing_formats || [])) {
+            pc._parsing_formats.set(key, value);
+        }
+        return pc;
+    }
+    static default_latex_template = default_latex_template_namespaceObject.latexTemplate;
+    static default_css_template = style_namespaceObject.cssTemplate;
+}
+
+;// CONCATENATED MODULE: ../application/models/parsing-formats/NTConciseParsingFormatStrings.ts
+/// https://www.preceptaustin.org/greek_abbreviations#Greek%20Resources
+const NTConciseEnglish = {
+    nominative: 'N',
+    genitive: 'G',
+    dative: 'D',
+    accusative: 'A',
+    NA: '',
+    masculine: 'M',
+    feminine: 'F',
+    neuter: 'N',
+    singular: 'S',
+    plural: 'P',
+    present: 'P',
+    imperfect: 'I',
+    future: 'F',
+    aorist: 'A',
+    perfect: 'R',
+    /// this is an odd practice, but it seems to be the standard
+    /// presumably pluperfects are different enough from presents
+    /// for the difference to be clear
+    pluperfect: 'P',
+    active: 'A',
+    middle: 'M',
+    passive: 'P',
+    indicative: 'I',
+    imperative: 'M',
+    subjunctive: 'S',
+    optative: 'O',
+    infinitive: 'N',
+    participle: 'P',
+    first: '1',
+    second: '2',
+    third: '3',
+    verb: 'V',
+    noun: 'N',
+};
+
+;// CONCATENATED MODULE: ../application/models/parsing-formats/ParsingFormatBase.ts
+class ParsingFormatBase {
+    _id;
+    _template;
+    _canon;
+    constructor(id, template, canon) {
+        this._id = id;
+        this._template = template;
+        this._canon = canon;
+    }
+    get id() {
+        return this._id;
+    }
+    get template() {
+        return this._template;
+    }
+    get canon() {
+        return this._canon;
+    }
+}
+
+;// CONCATENATED MODULE: ../application/models/parsing-formats/NTConciseParsingFormat.ts
+
+
+class NTConciseParsingFormat extends ParsingFormatBase {
+    strings;
+    constructor(id, template, numeralConverter, strings = NTConciseEnglish) {
+        super(id, template, "NT");
+        this.strings = strings;
+    }
+    toObject() {
+        return {
+            id: this.id,
+            template: this.template,
+            translations: this.strings
+        };
+    }
+    getString(key) {
+        return this.strings[key];
+    }
+    nounParsingString(element) {
+        let parsing = "N";
+        /// case
+        if (this.strings[element.grammatical_case]) {
+            parsing += this.strings[element.grammatical_case];
+        }
+        /// gender
+        if (this.strings[element.gender]) {
+            parsing += this.strings[element.gender];
+        }
+        /// number
+        parsing += this.strings[element.grammatical_number];
+        return parsing;
+    }
+    verbParsingString(element) {
+        if (element.mood === "infinitive") {
+            let parsing = this.strings.verb;
+            parsing += this.strings.infinitive;
+            /// tense
+            parsing += this.strings[element.tense];
+            /// voice
+            parsing += this.strings[element.voice];
+            return parsing;
+        }
+        else if (element.mood === "participle") {
+            let parsing = this.strings.verb + this.strings.participle;
+            /// tense
+            parsing += this.strings[element.tense];
+            /// voice
+            parsing += this.strings[element.voice];
+            /// case
+            if (this.strings[element.grammatical_case]) {
+                parsing += this.strings[element.grammatical_case];
+            }
+            /// gender
+            parsing += this.strings[element.gender];
+            /// number
+            parsing += this.strings[element.grammatical_number];
+            return parsing;
+        }
+        else {
+            let parsing = this.strings.verb;
+            /// person
+            switch (element.person) {
+                case "1st":
+                    parsing += this.strings.first;
+                    break;
+                case "2nd":
+                    parsing += this.strings.second;
+                    break;
+                case "3rd":
+                    parsing += this.strings.third;
+                    break;
+            }
+            /// number
+            parsing += this.strings[element.grammatical_number];
+            /// tense
+            parsing += this.strings[element.tense];
+            /// voice
+            parsing += this.strings[element.voice];
+            /// mood
+            parsing += this.strings[element.mood];
+            return parsing;
+        }
+    }
+}
+
+;// CONCATENATED MODULE: ../application/models/parsing-formats/NTVerboseParsingFormatStrings.ts
+const NTVerboseStringLabels = {
+    nominative: "Nominative",
+    genitive: "Genitive",
+    dative: "Dative",
+    accusative: "Accusative",
+    masculine: "Masculine",
+    feminine: "Feminine",
+    neuter: "Neuter",
+    singular: "Singular",
+    plural: "Plural",
+    present: "Present",
+    imperfect: "Imperfect",
+    future: "Future",
+    aorist: "Aorist",
+    perfect: "Perfect",
+    pluperfect: "Pluperfect",
+    active: "Active",
+    middle: "Middle",
+    passive: "Passive",
+    indicative: "Indicative",
+    imperative: "Imperative",
+    subjunctive: "Subjunctive",
+    optative: "Optative",
+    infinitive: "Infinitive",
+    participle: "Participle",
+    first: "First",
+    second: "Second",
+    third: "Third",
+    verb: "Verb",
+    noun: "Noun"
+};
+const NTVerboseEnglish = {
+    nominative: 'nominative',
+    genitive: 'genitive',
+    dative: 'dative',
+    accusative: 'accusative',
+    NA: '',
+    masculine: 'masculine',
+    feminine: 'feminine',
+    neuter: 'neuter',
+    singular: 'singular',
+    plural: 'plural',
+    present: 'present',
+    imperfect: 'imperfect',
+    future: 'future',
+    aorist: 'aorist',
+    perfect: 'perfect',
+    pluperfect: 'pluperfect',
+    active: 'active',
+    middle: 'middle',
+    passive: 'passive',
+    indicative: 'indicative',
+    imperative: 'imperative',
+    subjunctive: 'subjunctive',
+    optative: 'optative',
+    infinitive: 'infinitive',
+    participle: 'participle',
+    first: 'first',
+    second: 'second',
+    third: 'third',
+};
+const NTVerbosePersian = {
+    nominative: 'نهادی',
+    genitive: 'وابستگی',
+    dative: 'کنش‌گیری',
+    accusative: 'مفعولی',
+    NA: '',
+    masculine: 'مذکر',
+    feminine: 'مؤنث',
+    neuter: 'خنثی',
+    singular: 'مفرد',
+    plural: 'جمع',
+    present: 'حال',
+    imperfect: 'گذشتهٔ استمراری',
+    future: 'آینده',
+    aorist: 'ماضی ساده',
+    perfect: 'کامل',
+    pluperfect: 'ماضی بَعید',
+    active: 'معلوم',
+    middle: 'میانه',
+    passive: 'مجهول',
+    indicative: 'اِخباری',
+    imperative: 'امری',
+    subjunctive: 'اِلتِزامی',
+    optative: 'تمنایی',
+    infinitive: 'مصدر',
+    participle: 'وجه وصفی',
+    first: 'اول',
+    second: 'دوم',
+    third: 'سوم',
+};
+
+;// CONCATENATED MODULE: ../application/models/parsing-formats/NTVerboseParsingFormat.ts
+
+
+class NTVerboseParsingFormat extends ParsingFormatBase {
+    strings;
+    constructor(id, template, numeralConverter, strings = NTVerboseEnglish) {
+        super(id, template, "NT");
+        this.strings = strings;
+    }
+    toObject() {
+        return {
+            id: this.id,
+            template: this.template,
+            translations: this.strings
+        };
+    }
+    getString(key) {
+        return this.strings[key];
+    }
+    nounParsingString(element) {
+        let parsing = "";
+        /// case
+        if (this.strings[element.grammatical_case]) {
+            parsing += this.strings[element.grammatical_case];
+            parsing += " ";
+        }
+        /// gender
+        if (this.strings[element.gender]) {
+            parsing += this.strings[element.gender];
+            parsing += " ";
+        }
+        /// number
+        parsing += this.strings[element.grammatical_number];
+        return parsing;
+    }
+    verbParsingString(element) {
+        if (element.mood === "infinitive") {
+            /// tense
+            let parsing = this.strings[element.tense];
+            parsing += " ";
+            /// voice
+            parsing += this.strings[element.voice];
+            parsing += " ";
+            parsing += this.strings.infinitive;
+            return parsing;
+        }
+        else if (element.mood === "participle") {
+            /// tense
+            let parsing = this.strings[element.tense];
+            parsing += " ";
+            /// voice
+            parsing += this.strings[element.voice];
+            parsing += " ";
+            parsing += this.strings.participle;
+            parsing += " ";
+            /// case
+            if (this.strings[element.grammatical_case]) {
+                parsing += this.strings[element.grammatical_case];
+                parsing += " ";
+            }
+            /// gender
+            parsing += this.strings[element.gender];
+            parsing += " ";
+            /// number
+            parsing += this.strings[element.grammatical_number];
+            return parsing;
+        }
+        else {
+            /// tense
+            let parsing = this.strings[element.tense];
+            parsing += " ";
+            /// voice
+            parsing += this.strings[element.voice];
+            parsing += " ";
+            /// mood
+            parsing += this.strings[element.mood];
+            parsing += " ";
+            /// person
+            switch (element.person) {
+                case "1st":
+                    parsing += this.strings.first;
+                    break;
+                case "2nd":
+                    parsing += this.strings.second;
+                    break;
+                case "3rd":
+                    parsing += this.strings.third;
+                    break;
+            }
+            parsing += " ";
+            /// number
+            parsing += this.strings[element.grammatical_number];
+            return parsing;
+        }
+    }
+}
+
+;// CONCATENATED MODULE: ../application/models/parsing-formats/OTConciseParsingFormatStrings.ts
+const OTConciseStringLabels = {
+    noun_abbreviation: "Noun Abbreviation",
+    interrogative_abbreviation: "Interrogative Abbreviation",
+    emphatic_abbreviation: "Emphatic Abbreviation",
+    pronominal_suffix_abbreviation: "Pronominal Suffix Abbreviation",
+    passive_abbreviation: "Passive Abbreviation",
+    qal_abbreviation: "Qal Abbreviation",
+    piel_abbreviation: "Piel Abbreviation",
+    hiphil_abbreviation: "Hiphil Abbreviation",
+    niphal_abbreviation: "Niphal Abbreviation",
+    hithpael_abbreviation: "Hithpael Abbreviation",
+    hishtaphel_abbreviation: "Hishtaphel Abbreviation",
+    nithpael_abbreviation: "Nithpael Abbreviation",
+    hithpeel_abbreviation: "Hithpeel Abbreviation",
+    shafel_abbreviation: "Shafel Abbreviation",
+    retentive_abbreviation: "Retentive Abbreviation"
+};
+const OTBasicEnglish = {
+    noun_abbreviation: 'S',
+    interrogative_abbreviation: 'i',
+    emphatic_abbreviation: 'e',
+    pronominal_suffix_abbreviation: 's',
+    passive_abbreviation: 'p',
+    qal_abbreviation: 'G',
+    piel_abbreviation: 'D',
+    hiphil_abbreviation: 'H',
+    niphal_abbreviation: 'N',
+    hithpael_abbreviation: 'tD',
+    hishtaphel_abbreviation: 'Št',
+    nithpael_abbreviation: 'NtD',
+    hithpeel_abbreviation: 'tG',
+    shafel_abbreviation: 'Š',
+    retentive_abbreviation: 'r',
+};
+const ZERO_WIDTH_JOINER = '\u200d';
+const THIN_SPACE = '\u2009';
+const JOINER_PLUS_THIN_SPACE = ZERO_WIDTH_JOINER + THIN_SPACE;
+const OTBasicPersian = {
+    noun_abbreviation: 'اسم',
+    interrogative_abbreviation: 'استف' + JOINER_PLUS_THIN_SPACE,
+    emphatic_abbreviation: 'تأک' + JOINER_PLUS_THIN_SPACE,
+    pronominal_suffix_abbreviation: 'پ' + JOINER_PLUS_THIN_SPACE,
+    passive_abbreviation: 'مغعول' + THIN_SPACE,
+    qal_abbreviation: 'ق' + JOINER_PLUS_THIN_SPACE,
+    piel_abbreviation: 'پ' + JOINER_PLUS_THIN_SPACE,
+    hiphil_abbreviation: 'ح' + JOINER_PLUS_THIN_SPACE,
+    niphal_abbreviation: 'ن' + JOINER_PLUS_THIN_SPACE,
+    hithpael_abbreviation: 'حیت' + JOINER_PLUS_THIN_SPACE,
+    hishtaphel_abbreviation: 'حیش' + JOINER_PLUS_THIN_SPACE,
+    nithpael_abbreviation: 'نیت' + JOINER_PLUS_THIN_SPACE,
+    /// this is not great
+    hithpeel_abbreviation: 'حیتپ' + JOINER_PLUS_THIN_SPACE,
+    shafel_abbreviation: 'ش' + JOINER_PLUS_THIN_SPACE,
+    retentive_abbreviation: 'اد' + JOINER_PLUS_THIN_SPACE,
+};
+
+;// CONCATENATED MODULE: ../application/models/parsing-formats/OTConciseParsingFormat.ts
+
+
+class OTConciseParsingFormat extends ParsingFormatBase {
+    strings;
+    numeralConverter;
+    constructor(id, template, numeralConverter, strings = OTBasicEnglish) {
+        super(id, template, "OT");
+        this.numeralConverter = numeralConverter;
+        this.strings = strings;
+    }
+    toObject() {
+        return {
+            id: this.id,
+            template: this.template,
+            translations: this.strings
+        };
+    }
+    getString(key) {
+        return this.strings[key];
+    }
+    nounParsingString(element) {
+        let str = this.strings.noun_abbreviation + "7" + this.secondNumberForNouns(element);
+        if (element.hasPrecedingInterrogative) {
+            str += this.strings.interrogative_abbreviation;
+        }
+        if (element.hasPronominalSuffix) {
+            str += this.strings.pronominal_suffix_abbreviation + this.secondNumberForInflectedVerbs(element.prs_ps, element.prs_nu, element.prs_gn);
+        }
+        return this.numeralConverter(str);
+    }
+    verbParsingString(element) {
+        let str = "";
+        switch (element.vs) {
+            case "qal":
+                str += this.strings.qal_abbreviation;
+                break;
+            case "piel":
+                str += this.strings.piel_abbreviation;
+                break;
+            case "hif":
+                str += this.strings.hiphil_abbreviation;
+                break;
+            case "nif":
+                str += this.strings.niphal_abbreviation;
+                break;
+            case "pual":
+                str += this.strings.piel_abbreviation + this.strings.passive_abbreviation;
+                break;
+            case "hit":
+                str += this.strings.hithpael_abbreviation;
+                break;
+            case "hof":
+                str += this.strings.hiphil_abbreviation + this.strings.passive_abbreviation;
+                break;
+            case "hsht":
+                str += this.strings.hishtaphel_abbreviation;
+                break;
+            case "pasq":
+                str += this.strings.qal_abbreviation + this.strings.passive_abbreviation;
+                break;
+            case "hotp":
+                str += this.strings.hithpael_abbreviation + this.strings.passive_abbreviation;
+                break;
+            case "nit":
+                str += this.strings.nithpael_abbreviation;
+                break;
+            case "poal":
+                str += this.strings.piel_abbreviation + this.strings.passive_abbreviation;
+                break;
+            case "poel":
+                str += this.strings.piel_abbreviation;
+                break;
+            case "htpo":
+                str += this.strings.hithpael_abbreviation;
+                break;
+            case "peal":
+                str += this.strings.qal_abbreviation;
+                break;
+            case "tif":
+                str += this.strings.hithpael_abbreviation;
+                break;
+            case "etpa":
+                str += this.strings.hithpael_abbreviation;
+                break;
+            case "pael":
+                str += this.strings.piel_abbreviation;
+                break;
+            case "haf":
+                str += this.strings.hiphil_abbreviation;
+                break;
+            case "htpe":
+                str += this.strings.hithpeel_abbreviation;
+                break;
+            case "htpa":
+                str += this.strings.hithpael_abbreviation;
+                break;
+            case "peil":
+                str += this.strings.qal_abbreviation + this.strings.passive_abbreviation;
+                break;
+            case "etpe":
+                str += this.strings.hithpeel_abbreviation;
+                break;
+            case "afel":
+                str += this.strings.hiphil_abbreviation;
+                break;
+            case "shaf":
+                str += this.strings.shafel_abbreviation;
+                break;
+            case "NA":
+            default:
+                console.error("No stem specified for verb:", element);
+        }
+        switch (element.vt) {
+            case "perf":
+                str += "1" + this.secondNumberForInflectedVerbs(element.ps, element.nu, element.gn);
+                break;
+            case "ptca":
+                str += "5" + this.secondNumberForNouns(element);
+                break;
+            case "wayq":
+                str += this.strings.retentive_abbreviation + "2" + this.secondNumberForInflectedVerbs(element.ps, element.nu, element.gn);
+                break;
+            case "impf":
+                str += "2" + this.secondNumberForInflectedVerbs(element.ps, element.nu, element.gn);
+                break;
+            case "infc":
+                str += "65";
+                break;
+            case "impv":
+                str += "3" + this.secondNumberForInflectedVerbs(element.ps, element.nu, element.gn);
+                break;
+            case "infa":
+                str += "60";
+                break;
+            case "ptcp":
+                /// for these stems, the passive_abbreviation has already been added
+                if (element.vs == "hof" || element.vs == "pasq" || element.vs == "pual") {
+                    str += "5" + this.secondNumberForNouns(element);
+                }
+                else {
+                    str += this.strings.passive_abbreviation + "5" + this.secondNumberForNouns(element);
+                }
+                break;
+            case "NA":
+            default:
+                console.error("No tense specified for verb:", element);
+        }
+        if (element.hasPronominalSuffix) {
+            str += this.strings.pronominal_suffix_abbreviation + this.secondNumberForInflectedVerbs(element.prs_ps, element.prs_nu, element.prs_gn);
+        }
+        if (element.hasPrecedingInterrogative) {
+            str += this.strings.interrogative_abbreviation;
+        }
+        return this.numeralConverter(str);
+    }
+    secondNumberForInflectedVerbs(ps, nu, gn) {
+        const first = ps == "p1";
+        const second = ps == "p2";
+        const third = ps == "p3" || ps == "unknown";
+        const singular = nu == "sg";
+        const plural = nu == "pl" || nu == "du";
+        /// I'm not at all certain about this "unknown" business
+        const masculine = gn == "m" || gn == "unknown";
+        const feminine = gn == "f";
+        if (third && singular && masculine) {
+            return "0";
+        }
+        else if (third && singular && feminine) {
+            return "1";
+        }
+        else if (second && singular && masculine) {
+            return "2";
+        }
+        else if (second && singular && feminine) {
+            return "3";
+        }
+        else if (first && singular) {
+            return "4";
+        }
+        else if (third && plural && masculine) {
+            return "5";
+        }
+        else if (third && plural && feminine) {
+            return "6";
+        }
+        else if (second && plural && masculine) {
+            return "7";
+        }
+        else if (second && plural && feminine) {
+            return "8";
+        }
+        else if (first && plural) {
+            return "9";
+        }
+        else {
+            console.error("Unrecognized person/number/gender in verb:", ps, nu, gn);
+            throw "Unrecognized person/number/gender";
+        }
+    }
+    secondNumberForNouns(element) {
+        const singular = element.nu == "sg" || element.nu == "unknown";
+        const plural = element.nu == "pl" || element.nu == "du";
+        /// I'm not at all certain about this "unknown" business
+        const masculine = element.gn == "m" || element.gn == "unknown";
+        const feminine = element.gn == "f";
+        /// For active/construct, NA defaults to active
+        const active = element.st == "a" || element.st == "NA";
+        const construct = element.st == "c";
+        const emphatic = element.st == "e";
+        if (masculine && singular && active) {
+            return "0";
+        }
+        else if (feminine && singular && active) {
+            return "1";
+        }
+        else if (masculine && singular && construct) {
+            return "2";
+        }
+        else if (feminine && singular && construct) {
+            return "3";
+        }
+        else if (masculine && plural && active) {
+            return "5";
+        }
+        else if (feminine && plural && active) {
+            return "6";
+        }
+        else if (masculine && plural && construct) {
+            return "7";
+        }
+        else if (feminine && plural && construct) {
+            return "8";
+        }
+        else if (masculine && singular && emphatic) {
+            /// it's a curiosity of the Reader's BHS that it uses the same numbers for emphatic and construct
+            return "2";
+        }
+        else if (feminine && singular && emphatic) {
+            return "3";
+        }
+        else if (masculine && plural && emphatic) {
+            return "7";
+        }
+        else if (feminine && plural && emphatic) {
+            return "8";
+        }
+        else {
+            console.error("Unrecognized number/gender in noun or pronominal suffix:", element);
+            throw "Unrecognized number/gender";
+        }
+    }
+}
+
+;// CONCATENATED MODULE: ../application/models/parsing-formats/OTVerboseParsingFormatStrings.ts
+const OTVerboseStringLabels = {
+    noun: 'Noun',
+    interrogative: 'Interrogative',
+    pronominal_suffix: 'Suffix',
+    passive: 'Passive',
+    qal: 'Qal',
+    piel: 'Piel',
+    hiphil: 'Hiphil',
+    niphal: 'Niphal',
+    hithpael: 'Hithpael',
+    hishtaphel: 'Hishtaphel',
+    nithpael: 'Nithpael',
+    hithpeel: 'Hithpeel',
+    shafel: 'Shafel',
+    retentive: 'Retentive',
+    active: 'Active',
+    construct: 'Construct',
+    emphatic: 'Emphatic',
+    masculine: 'Masculine',
+    feminine: 'Feminine',
+    singular: 'Singular',
+    plural: 'Plural',
+    dual: 'Dual',
+    suffix: 'Pron Suff',
+    first_person: '1st',
+    second_person: '2nd',
+    third_person: '3rd',
+    perfect: 'Perfect',
+    active_participle: 'Active Participle',
+    wayyiqtol: 'Wayyiqtol',
+    imperfect: 'Imperfect',
+    infinitive_construct: 'Infinitive Construct',
+    imperative: 'Imperative',
+    infinitive_absolute: 'Infinitive Absolute',
+    passive_participle: 'Passive Participle',
+};
+const OTVerboseEnglish = {
+    noun: 'nominal',
+    interrogative: 'interrogative',
+    pronominal_suffix: 'suffix',
+    passive: 'passive',
+    qal: 'qal',
+    piel: 'piel',
+    hiphil: 'hiphil',
+    niphal: 'niphal',
+    hithpael: 'hithpael',
+    hishtaphel: 'hishtaphel',
+    nithpael: 'nithpael',
+    hithpeel: 'hithpeel',
+    shafel: 'shafel',
+    retentive: 'retentive',
+    active: 'active',
+    construct: 'construct',
+    emphatic: 'emphatic',
+    masculine: 'masculine',
+    feminine: 'feminine',
+    singular: 'singular',
+    plural: 'plural',
+    dual: 'dual',
+    suffix: 'pron suff',
+    first_person: '1st',
+    second_person: '2nd',
+    third_person: '3rd',
+    perfect: 'perfect',
+    active_participle: 'active participle',
+    wayyiqtol: 'wayyiqtol',
+    imperfect: 'imperfect',
+    infinitive_construct: 'infinitive construct',
+    imperative: 'imperative',
+    infinitive_absolute: 'infinitive absolute',
+    passive_participle: 'passive participle',
+};
+
+;// CONCATENATED MODULE: ../application/models/parsing-formats/OTVerboseParsingFormat.ts
+
+
+class OTVerboseParsingFormat extends ParsingFormatBase {
+    strings;
+    numeralConverter;
+    constructor(id, template, numeralConverter, strings = OTVerboseEnglish) {
+        super(id, template, "OT");
+        this.numeralConverter = numeralConverter;
+        this.strings = strings;
+    }
+    toObject() {
+        return {
+            id: this.id,
+            template: this.template,
+            translations: this.strings
+        };
+    }
+    getString(key) {
+        return this.strings[key];
+    }
+    nounParsingString(element) {
+        let str = this.strings.noun;
+        switch (element.st) {
+            case "a":
+                str += " " + this.strings.active;
+                break;
+            case "c":
+                str += " " + this.strings.construct;
+                break;
+            case "e":
+                str += " " + this.strings.emphatic;
+                break;
+            case "NA":
+            default:
+        }
+        switch (element.gn) {
+            case "m":
+                str += " " + this.strings.masculine;
+                break;
+            case "f":
+                str += " " + this.strings.feminine;
+                break;
+            case "NA":
+            default:
+        }
+        switch (element.nu) {
+            case "sg":
+                str += " " + this.strings.singular;
+                break;
+            case "pl":
+                str += " " + this.strings.plural;
+                break;
+            case "du":
+                str += " " + this.strings.dual;
+                break;
+            case "unknown":
+            case "NA":
+        }
+        str += this.pronominalSuffixString(element);
+        if (element.hasPrecedingInterrogative) {
+            str += ", " + this.strings.interrogative;
+        }
+        return this.numeralConverter(str);
+    }
+    verbParsingString(element) {
+        let str = "";
+        switch (element.vs) {
+            case "qal":
+                str += " " + this.strings.qal;
+                break;
+            case "piel":
+                str += " " + this.strings.piel;
+                break;
+            case "hif":
+                str += " " + this.strings.hiphil;
+                break;
+            case "nif":
+                str += " " + this.strings.niphal;
+                break;
+            case "pual":
+                str += " " + this.strings.piel + " " + this.strings.passive;
+                break;
+            case "hit":
+                str += " " + this.strings.hithpael;
+                break;
+            case "hof":
+                str += " " + this.strings.hiphil + " " + this.strings.passive;
+                break;
+            case "hsht":
+                str += " " + this.strings.hishtaphel;
+                break;
+            case "pasq":
+                str += " " + this.strings.qal + " " + this.strings.passive;
+                break;
+            case "hotp":
+                str += " " + this.strings.hithpael + " " + this.strings.passive;
+                break;
+            case "nit":
+                str += " " + this.strings.nithpael;
+                break;
+            case "poal":
+                str += " " + this.strings.piel + " " + this.strings.passive;
+                break;
+            case "poel":
+                str += " " + this.strings.piel;
+                break;
+            case "htpo":
+                str += " " + this.strings.hithpael;
+                break;
+            case "peal":
+                str += " " + this.strings.qal;
+                break;
+            case "tif":
+                str += " " + this.strings.hithpael;
+                break;
+            case "etpa":
+                str += " " + this.strings.hithpael;
+                break;
+            case "pael":
+                str += " " + this.strings.piel;
+                break;
+            case "haf":
+                str += " " + this.strings.hiphil;
+                break;
+            case "htpe":
+                str += " " + this.strings.hithpeel;
+                break;
+            case "htpa":
+                str += " " + this.strings.hithpael;
+                break;
+            case "peil":
+                str += " " + this.strings.qal + " " + this.strings.passive;
+                break;
+            case "etpe":
+                str += " " + this.strings.hithpeel;
+                break;
+            case "afel":
+                str += " " + this.strings.hiphil;
+                break;
+            case "shaf":
+                str += " " + this.strings.shafel;
+                break;
+            case "NA":
+            default:
+                console.error("No stem specified for verb:", element);
+        }
+        switch (element.vt) {
+            case "perf":
+                str += " " + this.strings.perfect;
+                break;
+            case "ptcp":
+                str += " " + this.strings.active_participle;
+                break;
+            case "wayq":
+                str += " " + this.strings.wayyiqtol;
+                break;
+            case "impf":
+                str += " " + this.strings.imperfect;
+                break;
+            case "infc":
+                str += " " + this.strings.infinitive_construct;
+                break;
+            case "impv":
+                str += " " + this.strings.imperative;
+                break;
+            case "infa":
+                str += " " + this.strings.infinitive_absolute;
+                break;
+            case "ptca":
+                str += " " + this.strings.passive_participle;
+                break;
+            case "NA":
+            default:
+        }
+        switch (element.ps) {
+            case "p1":
+                str += " " + this.strings.first_person;
+                break;
+            case "p2":
+                str += " " + this.strings.second_person;
+                break;
+            case "p3":
+                str += " " + this.strings.third_person;
+                break;
+            case "unknown":
+            case "NA":
+        }
+        switch (element.gn) {
+            case "m":
+                str += " " + this.strings.masculine;
+                break;
+            case "f":
+                str += " " + this.strings.feminine;
+                break;
+            case "NA":
+            default:
+        }
+        switch (element.nu) {
+            case "sg":
+                str += " " + this.strings.singular;
+                break;
+            case "pl":
+                str += " " + this.strings.plural;
+                break;
+            case "du":
+                str += " " + this.strings.dual;
+                break;
+            case "NA":
+        }
+        str += this.pronominalSuffixString(element);
+        if (element.hasPrecedingInterrogative) {
+            str += ", " + this.strings.interrogative;
+        }
+        return this.numeralConverter(str);
+    }
+    pronominalSuffixString(element) {
+        let str = "";
+        if (element.hasPronominalSuffix) {
+            str += " " + this.strings.suffix;
+            switch (element.prs_ps) {
+                case "p1":
+                    str += " " + this.strings.first_person;
+                    break;
+                case "p2":
+                    str += " " + this.strings.second_person;
+                    break;
+                case "p3":
+                    str += " " + this.strings.third_person;
+                    break;
+                case "unknown":
+                case "NA":
+            }
+            switch (element.prs_gn) {
+                case "m":
+                    str += " " + this.strings.masculine;
+                    break;
+                case "f":
+                    str += " " + this.strings.feminine;
+                    break;
+                case "NA":
+            }
+            switch (element.prs_nu) {
+                case "sg":
+                    str += " " + this.strings.singular;
+                    break;
+                case "pl":
+                    str += " " + this.strings.plural;
+                    break;
+                case "du":
+                    str += " " + this.strings.dual;
+                    break;
+                case "NA":
+            }
+        }
+        return str;
+    }
+}
+
+;// CONCATENATED MODULE: ../application/models/parsing-formats/NTTemplaticParsingFormatStrings.ts
+
+const NTTemplativeStringLabels = {
+    noun_template: "Noun Template",
+    infinitive_template: "Infinitive Template",
+    participle_template: "Participle Template",
+    finite_verb_template: "Finite Verb Template",
+    ...NTVerboseStringLabels
+};
+const NTTemplaticEnglish = {
+    ...NTVerboseEnglish,
+    noun_template: '__CASE__ __GENDER__ __NUMBER__',
+    infinitive_template: '__TENSE__ __VOICE__ __INFINITIVE__',
+    participle_template: '__TENSE__ __VOICE__ __PARTICIPLE__ __CASE__ __GENDER__ __NUMBER__',
+    finite_verb_template: '__TENSE__ __VOICE__ __MOOD__ __PERSON__ __NUMBER__',
+};
+const NTTemplaticPersian = {
+    ...NTVerbosePersian,
+    noun_template: '__CASE__ __GENDER__ __NUMBER__',
+    infinitive_template: '__TENSE__ __VOICE__ __INFINITIVE__',
+    participle_template: '__TENSE__ __VOICE__ __PARTICIPLE__ __CASE__ __GENDER__ __NUMBER__',
+    finite_verb_template: '__TENSE__ __VOICE__ __MOOD__ __PERSON__ __NUMBER__',
+};
+
+;// CONCATENATED MODULE: ../application/models/parsing-formats/NTTemplaticParsingFormat.ts
+
+
+class NTTemplaticParsingFormat extends ParsingFormatBase {
+    strings;
+    constructor(id, template, numeralConverter, strings = NTTemplaticEnglish) {
+        super(id, template, "NT");
+        this.strings = strings;
+    }
+    toObject() {
+        return {
+            id: this.id,
+            template: this.template,
+            translations: this.strings
+        };
+    }
+    getString(key) {
+        return this.strings[key];
+    }
+    nounParsingString(element) {
+        let parsing = this.strings.noun_template;
+        /// case
+        parsing = parsing.replace("__CASE__", this.strings[element.grammatical_case] || "");
+        /// gender
+        parsing = parsing.replace("__GENDER__", this.strings[element.gender] || "");
+        /// number
+        parsing = parsing.replace("__NUMBER__", this.strings[element.grammatical_number] || "");
+        return parsing;
+    }
+    verbParsingString(element) {
+        if (element.mood === "infinitive") {
+            let parsing = this.strings.infinitive_template;
+            /// tense
+            parsing = parsing.replace("__TENSE__", this.strings[element.tense] || "");
+            /// voice
+            parsing = parsing.replace("__VOICE__", this.strings[element.voice] || "");
+            /// infinitive
+            parsing = parsing.replace("__INFINITIVE__", this.strings.infinitive || "");
+            return parsing;
+        }
+        else if (element.mood === "participle") {
+            let parsing = this.strings.participle_template;
+            /// tense
+            parsing = parsing.replace("__TENSE__", this.strings[element.tense] || "");
+            /// voice
+            parsing = parsing.replace("__VOICE__", this.strings[element.voice] || "");
+            /// participle
+            parsing = parsing.replace("__PARTICIPLE__", this.strings.participle || "");
+            /// case
+            parsing = parsing.replace("__CASE__", this.strings[element.grammatical_case] || "");
+            /// gender
+            parsing = parsing.replace("__GENDER__", this.strings[element.gender] || "");
+            /// number
+            parsing = parsing.replace("__NUMBER__", this.strings[element.grammatical_number] || "");
+            return parsing;
+        }
+        else {
+            let parsing = this.strings.finite_verb_template;
+            /// tense
+            parsing = parsing.replace("__TENSE__", this.strings[element.tense] || "");
+            /// voice
+            parsing = parsing.replace("__VOICE__", this.strings[element.voice] || "");
+            /// mood
+            parsing = parsing.replace("__MOOD__", this.strings[element.mood] || "");
+            /// person
+            let personString = "";
+            switch (element.person) {
+                case "1st":
+                    personString = this.strings.first;
+                    break;
+                case "2nd":
+                    personString = this.strings.second;
+                    break;
+                case "3rd":
+                    personString = this.strings.third;
+                    break;
+            }
+            parsing = parsing.replace("__PERSON__", personString);
+            /// number
+            parsing = parsing.replace("__NUMBER__", this.strings[element.grammatical_number] || "");
+            return parsing;
+        }
+    }
+}
+
+;// CONCATENATED MODULE: ../application/models/parsing-formats/OTTemplaticParsingFormatStrings.ts
+
+const OTTemplativeStringLabels = {
+    noun_template: 'Noun Template',
+    verb_template: 'Verb Template',
+    pronominal_suffix_template: 'Pronominal Suffix Template',
+    interrogative_template: 'Interrogative Template',
+    ...OTVerboseStringLabels
+};
+const OTTemplaticEnglish = {
+    ...OTVerboseEnglish,
+    noun_template: '__NOUN__ __STATE__ __GENDER__ __NUMBER____PRONOMINAL_SUFFIX_TEMPLATE____INTERROGATIVE_TEMPLATE__',
+    pronominal_suffix_template: ', __SUFFIX__ __PERSON__ __GENDER__ __NUMBER__',
+    interrogative_template: ', __INTERROGATIVE__',
+    verb_template: '__STEM__ __TENSE__ __PERSON__ __GENDER__ __NUMBER____PRONOMINAL_SUFFIX_TEMPLATE____INTERROGATIVE_TEMPLATE__',
+};
+
+;// CONCATENATED MODULE: ../application/models/parsing-formats/OTTemplaticParsingFormat.ts
+
+
+class OTTemplaticParsingFormat extends ParsingFormatBase {
+    strings;
+    numeralConverter;
+    constructor(id, template, numeralConverter, strings = OTTemplaticEnglish) {
+        super(id, template, "OT");
+        this.numeralConverter = numeralConverter;
+        this.strings = strings;
+    }
+    toObject() {
+        return {
+            id: this.id,
+            template: this.template,
+            translations: this.strings
+        };
+    }
+    getString(key) {
+        return this.strings[key];
+    }
+    nounParsingString(element) {
+        let str = this.strings.noun_template;
+        str = str.replace("__NOUN__", this.strings.noun);
+        let stateString = "";
+        switch (element.st) {
+            case "a":
+                stateString = this.strings.active;
+                break;
+            case "c":
+                stateString = this.strings.construct;
+                break;
+            case "e":
+                stateString = this.strings.emphatic;
+                break;
+            case "NA":
+            default:
+        }
+        str = str.replace("__STATE__", stateString);
+        let genderString = "";
+        switch (element.gn) {
+            case "m":
+                genderString = this.strings.masculine;
+                break;
+            case "f":
+                genderString = this.strings.feminine;
+                break;
+            case "NA":
+            default:
+        }
+        str = str.replace("__GENDER__", genderString);
+        let numberString = "";
+        switch (element.nu) {
+            case "sg":
+                numberString = this.strings.singular;
+                break;
+            case "pl":
+                numberString = this.strings.plural;
+                break;
+            case "du":
+                numberString = this.strings.dual;
+                break;
+            case "unknown":
+            case "NA":
+        }
+        str = str.replace("__NUMBER__", numberString);
+        str = str.replace("__PRONOMINAL_SUFFIX_TEMPLATE__", this.pronominalSuffixString(element));
+        str = str.replace("__INTERROGATIVE_TEMPLATE__", this.interrogativeString(element));
+        return this.numeralConverter(str);
+    }
+    verbParsingString(element) {
+        let str = this.strings.verb_template;
+        let stemString = "";
+        switch (element.vs) {
+            case "qal":
+                stemString = this.strings.qal;
+                break;
+            case "piel":
+                stemString = this.strings.piel;
+                break;
+            case "hif":
+                stemString = this.strings.hiphil;
+                break;
+            case "nif":
+                stemString = this.strings.niphal;
+                break;
+            case "pual":
+                stemString = this.strings.piel + " " + this.strings.passive;
+                break;
+            case "hit":
+                stemString = this.strings.hithpael;
+                break;
+            case "hof":
+                stemString = this.strings.hiphil + " " + this.strings.passive;
+                break;
+            case "hsht":
+                stemString = this.strings.hishtaphel;
+                break;
+            case "pasq":
+                stemString = this.strings.qal + " " + this.strings.passive;
+                break;
+            case "hotp":
+                stemString = this.strings.hithpael + " " + this.strings.passive;
+                break;
+            case "nit":
+                stemString = this.strings.nithpael;
+                break;
+            case "poal":
+                stemString = this.strings.piel + " " + this.strings.passive;
+                break;
+            case "poel":
+                stemString = this.strings.piel;
+                break;
+            case "htpo":
+                stemString = this.strings.hithpael;
+                break;
+            case "peal":
+                stemString = this.strings.qal;
+                break;
+            case "tif":
+                stemString = this.strings.hithpael;
+                break;
+            case "etpa":
+                stemString = this.strings.hithpael;
+                break;
+            case "pael":
+                stemString = this.strings.piel;
+                break;
+            case "haf":
+                stemString = this.strings.hiphil;
+                break;
+            case "htpe":
+                stemString = this.strings.hithpeel;
+                break;
+            case "htpa":
+                stemString = this.strings.hithpael;
+                break;
+            case "peil":
+                stemString = this.strings.qal + " " + this.strings.passive;
+                break;
+            case "etpe":
+                stemString = this.strings.hithpeel;
+                break;
+            case "afel":
+                stemString = this.strings.hiphil;
+                break;
+            case "shaf":
+                stemString = this.strings.shafel;
+                break;
+            case "NA":
+            default:
+                console.error("No stem specified for verb:", element);
+        }
+        str = str.replace("__STEM__", stemString);
+        let tenseString = "";
+        switch (element.vt) {
+            case "perf":
+                tenseString = this.strings.perfect;
+                break;
+            case "ptcp":
+                tenseString = this.strings.active_participle;
+                break;
+            case "wayq":
+                tenseString = this.strings.wayyiqtol;
+                break;
+            case "impf":
+                tenseString = this.strings.imperfect;
+                break;
+            case "infc":
+                tenseString = this.strings.infinitive_construct;
+                break;
+            case "impv":
+                tenseString = this.strings.imperative;
+                break;
+            case "infa":
+                tenseString = this.strings.infinitive_absolute;
+                break;
+            case "ptca":
+                tenseString = this.strings.passive_participle;
+                break;
+            case "NA":
+            default:
+        }
+        str = str.replace("__TENSE__", tenseString);
+        let personString = "";
+        switch (element.ps) {
+            case "p1":
+                personString = this.strings.first_person;
+                break;
+            case "p2":
+                personString = this.strings.second_person;
+                break;
+            case "p3":
+                personString = this.strings.third_person;
+                break;
+            case "unknown":
+            case "NA":
+        }
+        str = str.replace("__PERSON__", personString);
+        let genderString = "";
+        switch (element.gn) {
+            case "m":
+                genderString = this.strings.masculine;
+                break;
+            case "f":
+                genderString = this.strings.feminine;
+                break;
+            case "NA":
+            default:
+        }
+        str = str.replace("__GENDER__", genderString);
+        let numberString = "";
+        switch (element.nu) {
+            case "sg":
+                numberString = this.strings.singular;
+                break;
+            case "pl":
+                numberString = this.strings.plural;
+                break;
+            case "du":
+                numberString = this.strings.dual;
+                break;
+            case "NA":
+        }
+        str = str.replace("__NUMBER__", numberString);
+        str = str.replace("__PRONOMINAL_SUFFIX_TEMPLATE__", this.pronominalSuffixString(element));
+        str = str.replace("__INTERROGATIVE_TEMPLATE__", this.interrogativeString(element));
+        return this.numeralConverter(str);
+    }
+    pronominalSuffixString(element) {
+        if (element.hasPronominalSuffix) {
+            let str = this.strings.pronominal_suffix_template;
+            str = str.replace("__SUFFIX__", this.strings.suffix);
+            let personString = "";
+            switch (element.prs_ps) {
+                case "p1":
+                    personString = this.strings.first_person;
+                    break;
+                case "p2":
+                    personString = this.strings.second_person;
+                    break;
+                case "p3":
+                    personString = this.strings.third_person;
+                    break;
+                case "unknown":
+                case "NA":
+            }
+            str = str.replace("__PERSON__", personString);
+            let genderString = "";
+            switch (element.prs_gn) {
+                case "m":
+                    genderString = this.strings.masculine;
+                    break;
+                case "f":
+                    genderString = this.strings.feminine;
+                    break;
+                case "NA":
+            }
+            str = str.replace("__GENDER__", genderString);
+            let numberString = "";
+            switch (element.prs_nu) {
+                case "sg":
+                    numberString = this.strings.singular;
+                    break;
+                case "pl":
+                    numberString = this.strings.plural;
+                    break;
+                case "du":
+                    numberString = this.strings.dual;
+                    break;
+                case "NA":
+            }
+            str = str.replace("__NUMBER__", numberString);
+            return str;
+        }
+        else {
+            return "";
+        }
+    }
+    interrogativeString(element) {
+        if (element.hasPrecedingInterrogative) {
+            return this.strings.interrogative_template;
+        }
+        else {
+            return "";
+        }
+    }
+}
+
+;// CONCATENATED MODULE: ../application/models/parsing-formats/ParsingFormat.ts
+
+
+
+
+
+
+
+
+
+
+
+
+function parsingFormatFromId(id) {
+    for (let i = 0; i < PARSING_FORMAT_TEMPLATES.length; i++) {
+        if (PARSING_FORMAT_TEMPLATES[i].id === id) {
+            return PARSING_FORMAT_TEMPLATES[i];
+        }
+    }
+    return undefined;
+}
+const PARSING_FORMAT_TEMPLATES = [
+    {
+        id: "nt-verbose",
+        name: "NT Verbose",
+        canon: "NT",
+        description: "Written-out Greek parsings (e.g., present active indicative 3s)",
+        strings: NTVerboseStringLabels,
+        placeholders: NTVerboseEnglish
+    },
+    {
+        id: "nt-concise",
+        name: "NT Concise",
+        canon: "NT",
+        description: "Abbreviated Greek parsings (e.g., V3SAPI, NANS)",
+        strings: NTVerboseStringLabels,
+        placeholders: NTConciseEnglish
+    },
+    {
+        id: "nt-templatic",
+        name: "NT Templatic",
+        canon: "NT",
+        description: "Similar to NT Verbose, but you can customize the template.",
+        strings: NTTemplativeStringLabels,
+        placeholders: NTTemplaticEnglish
+    },
+    {
+        id: "ot-concise",
+        name: "OT Concise",
+        canon: "OT",
+        description: "Hebrew parsings shown in a condensed format (e.g., G20 for a qal imperfect 3ms)",
+        strings: OTConciseStringLabels,
+        placeholders: OTBasicEnglish
+    },
+    {
+        id: "ot-verbose",
+        name: "OT Verbose",
+        canon: "OT",
+        description: "Hebrew parsings shown in a verbose format (e.g., qal imperfect 3ms)",
+        strings: OTVerboseStringLabels,
+        placeholders: OTVerboseEnglish
+    },
+    {
+        id: "ot-templatic",
+        name: "OT Templatic",
+        canon: "OT",
+        description: "Similar to OT Verbose, but you can customize the template.",
+        strings: OTTemplativeStringLabels,
+        placeholders: OTTemplaticEnglish
+    },
+];
+class ParsingFormatFactory {
+    static createParsingFormat(id, numeralConverter, templateId, translations) {
+        switch (templateId) {
+            case 'nt-verbose':
+                return new NTVerboseParsingFormat(id, templateId, numeralConverter, translations);
+            case 'ot-concise':
+                return new OTConciseParsingFormat(id, templateId, numeralConverter, translations);
+            case 'nt-concise':
+                return new NTConciseParsingFormat(id, templateId, numeralConverter, translations);
+            case 'ot-verbose':
+                return new OTVerboseParsingFormat(id, templateId, numeralConverter, translations);
+            case 'nt-templatic':
+                return new NTTemplaticParsingFormat(id, templateId, numeralConverter, translations);
+            case 'ot-templatic':
+                return new OTTemplaticParsingFormat(id, templateId, numeralConverter, translations);
+            default:
+                throw new Error(`Unknown parsing format template: ${templateId}`);
+        }
+    }
+}
+
+;// CONCATENATED MODULE: ../application/models/ProjectParsingFormats.ts
+
+class ProjectParsingFormats {
+    /// Different canons require different settings
+    _settings = new Map();
+    addCanonSettings(canon, settings) {
+        this._settings.set(canon, settings);
+    }
+    getSettingsForCanon(canon) {
+        return this._settings.get(canon);
+    }
+    isEmpty() {
+        return this._settings.size === 0;
+    }
+    hasFormatForCanon(canon) {
+        return this._settings.has(canon);
+    }
+    getNumberOfConfigurations(canon) {
+        const settings = this.getSettingsForCanon(canon);
+        if (settings === undefined) {
+            return 0;
+        }
+        else {
+            return settings.size;
+        }
+    }
+    getParsingFormat(canon, key) {
+        const settings = this.getSettingsForCanon(canon);
+        if (settings) {
+            return settings.get(key);
+        }
+        return undefined;
+    }
+    getParsingFormatFromId(key) {
+        for (const canonSettings of this._settings.values()) {
+            const format = canonSettings.get(key);
+            if (format) {
+                return format;
+            }
+        }
+        return undefined;
+    }
+    setParsingFormat(canon, key, format) {
+        let settings = this.getSettingsForCanon(canon);
+        if (settings === undefined) {
+            settings = new Map();
+            this.addCanonSettings(canon, settings);
+        }
+        settings.set(key, format);
+    }
+    removeParsingFormat(c, key) {
+        const settings = this.getSettingsForCanon(c);
+        if (settings) {
+            settings.delete(key);
+        }
+    }
+    toObject() {
+        const obj = {};
+        this._settings.forEach((value, canon) => {
+            if (!Object.prototype.hasOwnProperty.call(obj, canon)) {
+                obj[canon] = {};
+            }
+            value.forEach((value, key) => {
+                obj[canon][key] = value.toObject();
+            });
+        });
+        return obj;
+    }
+    static fromObject(obj, project) {
+        const settings = new ProjectParsingFormats();
+        /// for each canon, create a map of parsing formats
+        for (const key in obj) {
+            const canon = key;
+            const canonSettings = new Map();
+            const canonObj = obj[canon];
+            for (const key in canonObj) {
+                const settings = canonObj[key];
+                canonSettings.set(key, ParsingFormatFactory.createParsingFormat(settings.id, project.replaceNumerals.bind(project), settings.template, settings.translations));
+            }
+            settings.addCanonSettings(canon, canonSettings);
+        }
+        return settings;
+    }
+}
+
+;// CONCATENATED MODULE: ../application/models/ProjectConfiguration.ts
+
+
+
+
+const PROJECT_ROLES = (/* unused pure expression or super */ null && (['admin', 'member', 'disabled']));
+class ProjectConfiguration {
+    static Default = "default";
+    _project_id;
+    _project_title = "";
+    _project_description = "";
+    _layout_direction = "ltr";
+    _frequency_thresholds = new Map();
+    _bookNames = new Map();
+    _canons = [];
+    _roles = new Map();
+    _allow_joins = true;
+    _font_families = "";
+    _font_size;
+    _parsingFormats = new ProjectParsingFormats();
+    _numerals;
+    // private _latex_templates: Map<string, string> = new Map<string, string>();
+    _publication_configurations = new Map();
+    constructor(project_id) {
+        this._project_id = project_id;
+        /// it's better to have default books names
+        this.initializeBookNamesToLatin();
+        this._canons = ["OT", "NT"];
+        this._frequency_thresholds.set("NT", 30);
+        this._frequency_thresholds.set("OT", 50);
+        this._numerals = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
+        /// ensure that there is a default publication configuration
+        this._publication_configurations.set(ProjectConfiguration.Default, new PublicationConfiguration(ProjectConfiguration.Default, this));
+    }
+    initializeBookNamesToLatin() {
+        CANONS.forEach(canon => {
+            canon.books.forEach(book => {
+                this._bookNames.set(book, VerseReference.ubsBookToLatin(book));
+            });
+        });
+    }
+    get layout_direction() {
+        return this._layout_direction;
+    }
+    get title() {
+        return this._project_title;
+    }
+    get description() {
+        return this._project_description;
+    }
+    get allow_joins() {
+        return this._allow_joins;
+    }
+    get id() {
+        return this._project_id;
+    }
+    get canons() {
+        return this._canons;
+    }
+    get parsingFormats() {
+        return this._parsingFormats;
+    }
+    get font_families() {
+        return this._font_families;
+    }
+    get font_size() {
+        return this._font_size;
+    }
+    get numerals() {
+        return this._numerals;
+    }
+    set project_id(value) {
+        this._project_id = value;
+    }
+    set title(value) {
+        this._project_title = value;
+    }
+    set description(value) {
+        this._project_description = value;
+    }
+    set allow_joins(value) {
+        this._allow_joins = value;
+    }
+    set layout_direction(value) {
+        this._layout_direction = value;
+    }
+    set frequency_thresholds(value) {
+        this._frequency_thresholds = value;
+    }
+    set bookNames(value) {
+        this._bookNames = value;
+    }
+    get bookNames() {
+        return this._bookNames;
+    }
+    set canons(value) {
+        this._canons = value;
+    }
+    get members() {
+        return Array.from(this._roles.keys());
+    }
+    set font_families(ff) {
+        this._font_families = ff;
+    }
+    set font_size(size) {
+        this._font_size = size;
+    }
+    set numerals(numerals) {
+        this._numerals = numerals;
+    }
+    replaceNumerals(str) {
+        return ProjectConfiguration.performNumeralReplacement(str, this._numerals);
+    }
+    member(user_id) {
+        return this._roles.get(user_id);
+    }
+    setMember(member) {
+        this._roles.set(member.user_id, member);
+    }
+    userRole(user_id) {
+        return this._roles.get(user_id)?.user_role;
+    }
+    hasCanon(canon) {
+        return this._canons.indexOf(canon) !== -1;
+    }
+    fallbackCanon() {
+        return this._canons[0];
+    }
+    getFrequencyThreshold(canon) {
+        /// default to 50 (mostly just to satisfy typescript)
+        return this._frequency_thresholds.get(canon) || 50;
+    }
+    formatVerseReference(ref) {
+        return `${this.getBookName(ref.ubs_book)} ${ref.chapter}:${ref.verse}`;
+    }
+    getBookName(book) {
+        return this._bookNames.get(book) || `[Unknown: ${book}]`;
+    }
+    static performNumeralReplacement(str, numerals) {
+        if (numerals.length === 10) {
+            for (let i = 0; i < 10; i++) {
+                str = str.replace(new RegExp(i.toString(), "g"), numerals[i]);
+            }
+        }
+        else {
+            console.error("Numerals array is not of length 10", numerals);
+        }
+        return str;
+    }
+    setParsingFormat(value) {
+        this.parsingFormats.setParsingFormat(value.canon, value.id, value);
+    }
+    get repositoryName() {
+        return ProjectConfiguration.getRepositoryName(this._project_id);
+    }
+    get publicationUrl() {
+        return `https://openreadersbibles.github.io/${this.repositoryName}`;
+    }
+    deepCopy() {
+        return ProjectConfiguration.fromRow(this.toObject());
+    }
+    static getRepositoryName(project_id) {
+        return `pub-${project_id}`;
+    }
+    ;
+    get publicationConfigurations() {
+        return this._publication_configurations;
+    }
+    toObject() {
+        const thresholds = {};
+        for (const [canon, threshold] of this._frequency_thresholds) {
+            thresholds[canon] = threshold;
+        }
+        const bookNames = {};
+        for (const [book, name] of this._bookNames) {
+            bookNames[book] = name;
+        }
+        const roles = [];
+        for (const role of this._roles.values()) {
+            roles.push(role);
+        }
+        const configurations = {};
+        this._publication_configurations.forEach((value, key) => {
+            configurations[key] = value.toObject();
+        });
+        return {
+            project_id: this._project_id,
+            project_title: this._project_title,
+            project_description: this._project_description,
+            layout_direction: this._layout_direction,
+            frequency_thresholds: thresholds,
+            bookNames: bookNames,
+            canons: this._canons,
+            roles: roles,
+            allow_joins: this._allow_joins,
+            font_families: this._font_families,
+            font_size: this._font_size,
+            parsing_formats: this._parsingFormats.toObject(),
+            publication_configurations: configurations,
+            numerals: this._numerals,
+        };
+    }
+    static fromRow(row) {
+        const pc = new ProjectConfiguration(row.project_id);
+        pc._project_title = row.project_title;
+        pc._project_description = row.project_description;
+        pc._layout_direction = row.layout_direction;
+        pc._allow_joins = row.allow_joins;
+        pc._font_families = row.font_families;
+        pc._font_size = row.font_size;
+        pc._numerals = row.numerals || [];
+        pc._parsingFormats = ProjectParsingFormats.fromObject(row.parsing_formats, pc);
+        for (const canon in row.frequency_thresholds) {
+            if (Object.prototype.hasOwnProperty.call(row.frequency_thresholds, canon)) {
+                pc._frequency_thresholds.set(canon, row.frequency_thresholds[canon]);
+            }
+        }
+        for (const code in row.bookNames) {
+            if (Object.prototype.hasOwnProperty.call(row.bookNames, code)) {
+                pc._bookNames.set(code, row.bookNames[code]);
+            }
+        }
+        pc._canons = row.canons;
+        for (const role of row.roles) {
+            pc._roles.set(role.user_id, role);
+        }
+        if (row.publication_configurations) {
+            for (const key in row.publication_configurations) {
+                if (Object.prototype.hasOwnProperty.call(row.publication_configurations, key)) {
+                    pc.publicationConfigurations.set(key, PublicationConfiguration.fromRow(row.publication_configurations[key], key, pc));
+                }
+            }
+        }
+        return pc;
+    }
+}
+
 ;// CONCATENATED MODULE: ./src/FilenameData.ts
 class FilenameData {
     filename;
@@ -35468,7 +35193,7 @@ class FileIndex {
     constructor(filenames, project) {
         this.filedata = filenames.map((filename) => new FilenameData(filename));
         /// Create the canon-level index for HTML and PDF files
-        Canons.CANONS.forEach((canon) => {
+        CANONS.forEach((canon) => {
             this.htmlIndex.set(canon.name, new Map());
             this.pdfIndex.set(canon.name, new Map());
         });
@@ -35507,20 +35232,20 @@ class FileIndex {
 <body>
 <h1>${this.project.title}</h1>
 <p class="project-description">${this.project.description}</p>
-${this.produceCanonTable(Canons.OT)}
-${this.produceCanonTable(Canons.LXX)}
-${this.produceCanonTable(Canons.NT)}
+${this.produceCanonTable(OT)}
+${this.produceCanonTable(LXX)}
+${this.produceCanonTable(NT)}
 </body>
 </html>
         `;
     }
     produceCanonTable(cd) {
         if (this.hasAnyFiles(cd)) {
-            let result = `<h2 class="toc">${cd.name}</h2><table class="toc">`;
+            let result = `<h2 class="toc">${cd.name}</h2><table class="toc"><tbody>`;
             cd.books.forEach((book) => {
                 if (this.hasEither(cd.name, book)) {
                     result += `<tr>`;
-                    result += `<td>${this.project.getBookName(book)}</td>`;
+                    result += `<th>${this.project.getBookName(book)}</th>`;
                     if (this.hasPdf(cd.name, book)) {
                         result += `<td><a href="${this.pdfIndex.get(cd.name)?.get(book)?.filename}">PDF</a></td>`;
                     }
@@ -35536,7 +35261,7 @@ ${this.produceCanonTable(Canons.NT)}
                     result += `</tr>`;
                 }
             });
-            result += '</table>';
+            result += '</tbody></table>';
             return result;
         }
         else {
@@ -35568,10 +35293,12 @@ class IndexBuilder {
     }
     async run() {
         const projectJson = await this.getRepoFile(`${this.repo.slice(4)}.json`);
-        this.project = ProjectConfiguration/* ProjectConfiguration */.IF.fromRow(JSON.parse(projectJson));
+        this.project = ProjectConfiguration.fromRow(JSON.parse(projectJson));
         core.debug(`Project Configuration: ${this.project.id}`);
         const folders = await this.getDirectories();
         const files = await Promise.all(folders.map((dir) => this.createIndexForFolder(dir)));
+        const rootIndex = await this.createRootIndex(folders);
+        files.push(rootIndex);
         await this.addFilesToRepository(this.repo, files, 'gh-pages');
     }
     async getRelevantFiles(directory) {
@@ -35624,6 +35351,34 @@ class IndexBuilder {
         const index = new FileIndex(files, this.project);
         return { path: `${folder}/index.html`, content: index.toHtml() };
     }
+    async createRootIndex(folders) {
+        core.debug(`Creating root index for ${this.repo}:`);
+        if (!this.project) {
+            throw new Error('Project configuration is not loaded.');
+        }
+        let list = "<ul>";
+        folders.forEach((folder) => {
+            list += `<li><a href="${folder}/index.html">${folder}</a></li>`;
+        });
+        list += "</ul>";
+        const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${this.project.title}</title>
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<h1>${this.project.title}</h1>
+<p class="project-description">${this.project.description}</p>
+${list}
+</body>
+</html>
+        `;
+        return { path: `index.html`, content: html };
+    }
     async getRepoFile(path) {
         const response = await this.octokit.request(`GET /repos/openreadersbibles/${this.repo}/contents/${path}`, {
             owner: this.owner,
@@ -35648,6 +35403,7 @@ class IndexBuilder {
             const baseTreeSha = refResponse.data.object.sha;
             // Step 2: Create blobs for each file
             const blobs = await Promise.all(files.map(async (file) => {
+                core.info(`Adding file ${file.path} to repository ${repo}`);
                 const blobResponse = await this.octokit.request('POST /repos/{owner}/{repo}/git/blobs', {
                     owner: this.owner,
                     repo: repo,

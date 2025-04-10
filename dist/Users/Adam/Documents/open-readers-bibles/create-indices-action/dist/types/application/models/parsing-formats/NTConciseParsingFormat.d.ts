@@ -1,8 +1,8 @@
-import { PublicationGreekWordElement } from "../publication/PublicationGreekWordElement";
-import { NumeralConverter } from "../NumeralConverter";
-import { NTConciseParsingFormatStrings } from "./NTConciseParsingFormatStrings";
-import { ParsingFormat, ParsingFormatObject } from "./ParsingFormat";
-import { ParsingFormatBase } from "./ParsingFormatBase";
+import { PublicationGreekWordElement } from "../publication/PublicationGreekWordElement.js";
+import { NumeralConverter } from "../NumeralConverter.js";
+import { NTConciseParsingFormatStrings } from "./NTConciseParsingFormatStrings.js";
+import { ParsingFormat, ParsingFormatObject } from "./ParsingFormat.js";
+import { ParsingFormatBase } from "./ParsingFormatBase.js";
 export declare class NTConciseParsingFormat extends ParsingFormatBase implements ParsingFormat {
     private strings;
     constructor(id: string, template: string, numeralConverter: NumeralConverter, strings?: NTConciseParsingFormatStrings);

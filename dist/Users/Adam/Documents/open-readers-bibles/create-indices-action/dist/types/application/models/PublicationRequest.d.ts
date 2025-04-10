@@ -1,6 +1,6 @@
-import { ProjectConfiguration, ProjectId } from "./ProjectConfiguration";
-import { BookIdentifier } from "./BookIdentifier";
-import { PublicationConfiguration } from "./PublicationConfiguration";
+import { ProjectConfiguration, ProjectId } from "./ProjectConfiguration.js";
+import { BookIdentifier, BookIdentifierJson } from "./BookIdentifier.js";
+import { PublicationConfiguration } from "./PublicationConfiguration.js";
 export interface PublicationRequest {
     books: BookIdentifier[];
     project: ProjectConfiguration;
@@ -8,7 +8,7 @@ export interface PublicationRequest {
     nopdf: boolean;
 }
 export interface HollowPublicationRequest {
-    books: string[];
+    books: BookIdentifierJson[];
     project_id: ProjectId;
     publication_configuration_id: string;
     nopdf: boolean;

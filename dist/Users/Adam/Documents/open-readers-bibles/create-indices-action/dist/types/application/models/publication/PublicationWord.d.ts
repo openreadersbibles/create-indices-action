@@ -1,6 +1,6 @@
-import { VerseReference } from "../../models/VerseReference";
-import { PublicationPhrasalGloss } from "./PublicationPhrasalGloss";
-import { PublicationWordElement } from "./PublicationWordElement";
+import { VerseReference } from "../../models/VerseReference.js";
+import { PublicationPhrasalGloss } from "./PublicationPhrasalGloss.js";
+import { PublicationWordElement } from "./PublicationWordElement.js";
 export declare class PublicationWord {
     elements: PublicationWordElement[];
     private ref;

@@ -1,6 +1,6 @@
-import { ParsingFormat, ParsingFormatId } from './parsing-formats/ParsingFormat';
-import { ProjectConfiguration } from './ProjectConfiguration';
-import { Canon } from './VerseReference';
+import { ParsingFormat, ParsingFormatId } from './parsing-formats/ParsingFormat.js';
+import { ProjectConfiguration } from './ProjectConfiguration.js';
+import { Canon } from './VerseReference.js';
 export interface PublicationConfigurationRow {
     footnoteMarkers: string[];
     polyglossiaOtherLanguage: string;
@@ -11,8 +11,8 @@ export interface PublicationConfigurationRow {
     parsing_formats: {
         [key: string]: string;
     };
-    css_template: string;
-    footnote_style: PublicationFootnoteStyle;
+    css_template?: string;
+    footnote_style?: PublicationFootnoteStyle;
 }
 export type PublicationFootnoteStyle = "lettered-by-verse" | "numbered-by-page";
 export declare class PublicationConfiguration {

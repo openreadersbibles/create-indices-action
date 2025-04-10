@@ -1,7 +1,12 @@
-import { CanonData } from "./Canons";
-import { ProjectConfiguration, ProjectId } from "./ProjectConfiguration";
-import { Canon, VerseReference } from "./VerseReference";
+import { CanonData } from "./Canons.js";
+import { ProjectConfiguration, ProjectId } from "./ProjectConfiguration.js";
+import { Canon, VerseReference } from "./VerseReference.js";
 type CompositeKey = string;
+type CurrentPositionJson = {
+    project_id: ProjectId;
+    canon: Canon;
+    positions: Record<ProjectId, Record<Canon, string>>;
+};
 export declare class CurrentPosition {
     private _current_project_id;
     private _current_canon;
@@ -19,7 +24,7 @@ export declare class CurrentPosition {
     private currentKey;
     static getKey(p: ProjectId, c: Canon): CompositeKey;
     static fromJson(json: string): CurrentPosition | undefined;
-    toObject(): any;
+    toObject(): CurrentPositionJson;
     static createFromProjectList(projects: ProjectConfiguration[]): CurrentPosition | undefined;
 }
 export {};

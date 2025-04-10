@@ -1,5 +1,5 @@
 export interface GlossLocation {
-    toObject(): any;
+    toObject(): WordGlossLocationObject | PhraseGlossLocationObject;
     asString(): string;
 }
 export interface WordGlossLocationObject {

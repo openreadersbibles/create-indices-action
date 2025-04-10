@@ -1,9 +1,9 @@
-import { PublicationVerse } from "./PublicationVerse";
-import { PublicationFootnoteElement } from "./PublicationFootnoteElement";
-import { PublicationWordElement } from "./PublicationWordElement";
-import { PublicationPhrasalGloss } from "./PublicationPhrasalGloss";
-import { XMLBuilder } from "xmlbuilder2/lib/interfaces";
-import { PublicationRequest } from "../PublicationRequest";
+import { PublicationVerse } from "./PublicationVerse.js";
+import { PublicationFootnoteElement } from "./PublicationFootnoteElement.js";
+import { PublicationWordElement } from "./PublicationWordElement.js";
+import { PublicationPhrasalGloss } from "./PublicationPhrasalGloss.js";
+import { XMLBuilder } from "xmlbuilder2/lib/interfaces.js";
+import { PublicationRequest } from "../PublicationRequest.js";
 export declare enum PublicationFootnoteType {
     None = 0,
     Parsing = 1,

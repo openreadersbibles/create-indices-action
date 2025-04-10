@@ -1,5 +1,5 @@
-import { OTVerboseParsingFormatStrings } from "./OTVerboseParsingFormatStrings";
-import { StringLookup } from "./ParsingFormat";
+import { OTVerboseParsingFormatStrings } from "./OTVerboseParsingFormatStrings.js";
+import { StringLookup } from "./ParsingFormat.js";
 export interface OTTemplaticParsingFormatStrings extends StringLookup, OTVerboseParsingFormatStrings {
     noun_template: string;
     pronominal_suffix_template: string;

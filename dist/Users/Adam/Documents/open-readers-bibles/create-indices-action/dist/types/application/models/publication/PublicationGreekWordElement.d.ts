@@ -1,18 +1,16 @@
-import { Annotation } from "../../models/Annotation";
-import { NTPartOfSpeech, NTPerson, NTTense, NTVoice, NTMood, NTCase, NTNumber, NTGender, NTDegree } from "../../models/GreekWordRow";
-import { PublicationRequest } from "../../models/PublicationRequest";
-import { VerseReference } from "../../models/VerseReference";
-import { BaseWordElement } from "./BaseWordElement";
-import { PublicationFootnoteType } from "./PublicationFootnote";
-import { PublicationGreekWordElementRow } from "./PublicationGreekWordElementRow";
-import { PublicationPhrasalGloss } from "./PublicationPhrasalGloss";
-import { PublicationWord } from "./PublicationWord";
-import { PublicationWordElement } from "./PublicationWordElement";
-export declare class PublicationGreekWordElement extends BaseWordElement implements PublicationWordElement {
-    row: PublicationGreekWordElementRow;
+import { Annotation } from "../../models/Annotation.js";
+import { NTPartOfSpeech, NTPerson, NTTense, NTVoice, NTMood, NTCase, NTNumber, NTGender, NTDegree } from "../../models/GreekWordRow.js";
+import { PublicationRequest } from "../../models/PublicationRequest.js";
+import { VerseReference } from "../../models/VerseReference.js";
+import { BaseWordElement } from "./BaseWordElement.js";
+import { PublicationFootnoteType } from "./PublicationFootnote.js";
+import { PublicationGreekWordElementRow } from "./PublicationGreekWordElementRow.js";
+import { PublicationPhrasalGloss } from "./PublicationPhrasalGloss.js";
+import { PublicationWord } from "./PublicationWord.js";
+import { PublicationWordElement } from "./PublicationWordElement.js";
+export declare class PublicationGreekWordElement extends BaseWordElement<PublicationGreekWordElementRow> implements PublicationWordElement {
     private static _substantive_parts_of_speech;
-    static fromWordRow(obj: any, word: PublicationWord, request: PublicationRequest): PublicationWordElement;
-    constructor(obj: PublicationGreekWordElementRow, word: PublicationWord, request: PublicationRequest);
+    static fromWordRow(obj: PublicationGreekWordElementRow, word: PublicationWord, request: PublicationRequest): PublicationWordElement;
     get plaintext(): string;
     get isVerb(): boolean;
     get isSubstantive(): boolean;

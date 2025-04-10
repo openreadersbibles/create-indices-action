@@ -1,9 +1,28 @@
-import { MiniMarkdown } from './MiniMarkdown';
-export declare let converter: MiniMarkdown;
+import { MiniMarkdown } from './MiniMarkdown.js';
+export declare const converter: MiniMarkdown;
 export type AnnotationType = "word" | "markdown" | "wordplusmarkdown" | "null";
-export interface AnnotationJsonObject {
-    type: AnnotationType;
-    content: any;
+export type AnnotationJsonObject = {
+    type: "word";
+    content: WordAnnotationContent;
+} | {
+    type: "markdown";
+    content: MarkdownAnnotationContent;
+} | {
+    type: "wordplusmarkdown";
+    content: WordPlusMarkdownAnnotationContent;
+} | {
+    type: "null";
+    content: string;
+};
+interface WordAnnotationContent {
+    gloss: string;
+}
+export interface MarkdownAnnotationContent {
+    markdown: string;
+}
+interface WordPlusMarkdownAnnotationContent {
+    gloss: string;
+    markdown: string;
 }
 export interface Annotation {
     type: AnnotationType;
@@ -47,5 +66,6 @@ export declare class NullAnnotation implements Annotation {
     get html(): string;
     get tex(): string;
     toAnnotationObject(): AnnotationJsonObject;
-    static fromObject(obj: AnnotationJsonObject): NullAnnotation;
+    static fromObject(): NullAnnotation;
 }
+export {};

@@ -1,7 +1,8 @@
-import { ParsingFormat, ParsingFormatId } from "./parsing-formats/ParsingFormat";
-import { ProjectConfiguration } from "./ProjectConfiguration";
-import { Canon } from "./VerseReference";
+import { ParsingFormat, ParsingFormatId, ParsingFormatObject } from "./parsing-formats/ParsingFormat.js";
+import { ProjectConfiguration } from "./ProjectConfiguration.js";
+import { Canon } from "./VerseReference.js";
 type CanonParsingFormats = Map<ParsingFormatId, ParsingFormat>;
+export type ProjectParsingFormatsObject = Partial<Record<Canon, Record<ParsingFormatId, ParsingFormatObject>>>;
 export declare class ProjectParsingFormats {
     private _settings;
     addCanonSettings(canon: Canon, settings: CanonParsingFormats): void;
@@ -13,7 +14,7 @@ export declare class ProjectParsingFormats {
     getParsingFormatFromId(key: ParsingFormatId): ParsingFormat | undefined;
     setParsingFormat(canon: Canon, key: ParsingFormatId, format: ParsingFormat): void;
     removeParsingFormat(c: Canon, key: string): void;
-    toObject(): any;
-    static fromObject(obj: any, project: ProjectConfiguration): ProjectParsingFormats;
+    toObject(): ProjectParsingFormatsObject;
+    static fromObject(obj: ProjectParsingFormatsObject, project: ProjectConfiguration): ProjectParsingFormats;
 }
 export {};

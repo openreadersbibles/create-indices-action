@@ -1,21 +1,7 @@
-import { AnnotationJsonObject } from "./Annotation";
-import { GlossLocation } from "./gloss-locations";
-import { ProjectConfigurationRow } from "./ProjectConfiguration";
-import { Canon } from "./VerseReference";
-export interface ServerResponse {
-    status: "success" | "authentication_failure" | "internet_failure" | "internal_failure" | "bad_request_failure";
-    payload?: any;
-}
-export declare const InternetFailure: ServerResponse;
-export declare const AuthenticationFailure: ServerResponse;
-export declare const InternalFailure: ServerResponse;
-export declare const BadRequestFailure: ServerResponse;
-export interface ProjectPackage {
-    project: ProjectConfigurationRow;
-    new_project: boolean;
-}
+import { AnnotationJsonObject } from "./Annotation.js";
+import { PhraseGlossLocationObject, WordGlossLocationObject } from "./gloss-locations.js";
+import { WorkflowRun } from './publication/WorkflowRun.js';
 export interface UpdateVerseData {
-    canon_name: Canon;
     word_gloss_updates: GlossSendObject[];
     phrase_gloss_updates: GlossSendObject[];
 }
@@ -30,11 +16,25 @@ export interface PhraseGlossRow {
     to_word_id: number;
     markdown: string;
     votes: number;
-    myVote: number;
+    myVote: number | null;
 }
 export interface GlossSendObject {
     annotationObject: AnnotationJsonObject;
     gloss_id: number;
     myVote: 0 | 1;
-    location: GlossLocation;
+    location: WordGlossLocationObject | PhraseGlossLocationObject;
 }
+export interface CheckResults {
+    [key: string]: string[];
+}
+export type AdHocPublicationResult = {
+    operation_status: 'success' | 'failure';
+    payload: {
+        object: {
+            sha: string;
+        };
+    };
+};
+export type AdHocWorkflowRunsResult = {
+    workflow_runs?: WorkflowRun[];
+};

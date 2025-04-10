@@ -1,4 +1,5 @@
-import { GlossRow, PhraseGlossRow } from "./database-input-output";
+import { AnnotationJsonObject } from "./Annotation.js";
+import { GlossRow, PhraseGlossRow } from "./database-input-output.js";
 export type OTGender = "NA" | "f" | "m" | "unknown";
 export type OTGrammaticalNumber = "NA" | "sg" | "pl" | "unknown" | "du";
 export type OTPerson = "NA" | "p1" | "p2" | "p3" | "unknown";
@@ -13,7 +14,7 @@ export interface GetHebrewVerseResponse {
 }
 export interface SuggestionRow {
     lex_id: number;
-    suggestions: any[];
+    suggestions: AnnotationJsonObject[];
 }
 export interface HebrewWordRow {
     _id: number;
@@ -21,7 +22,6 @@ export interface HebrewWordRow {
     g_word_utf8: string;
     trailer_utf8: string;
     lex_id: number;
-    gloss: string;
     votes: GlossRow[];
     myVote: number | null;
     gn: OTGender;

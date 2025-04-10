@@ -1,5 +1,5 @@
-import { NTVerboseParsingFormatStrings } from "./NTVerboseParsingFormatStrings";
-import { StringLookup } from "./ParsingFormat";
+import { NTVerboseParsingFormatStrings } from "./NTVerboseParsingFormatStrings.js";
+import { StringLookup } from "./ParsingFormat.js";
 export interface NTTemplaticParsingFormatStrings extends StringLookup, NTVerboseParsingFormatStrings {
     noun_template: string;
     infinitive_template: string;

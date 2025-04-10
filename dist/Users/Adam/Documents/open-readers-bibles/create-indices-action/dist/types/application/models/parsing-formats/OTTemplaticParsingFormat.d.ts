@@ -1,8 +1,8 @@
-import { PublicationHebrewWordElement } from "../publication/PublicationHebrewWordElement";
-import { ParsingFormat, ParsingFormatObject } from "./ParsingFormat";
-import { ParsingFormatBase } from "./ParsingFormatBase";
-import { NumeralConverter } from "../NumeralConverter";
-import { OTTemplaticParsingFormatStrings } from "./OTTemplaticParsingFormatStrings";
+import { PublicationHebrewWordElement } from "../publication/PublicationHebrewWordElement.js";
+import { ParsingFormat, ParsingFormatObject } from "./ParsingFormat.js";
+import { ParsingFormatBase } from "./ParsingFormatBase.js";
+import { NumeralConverter } from "../NumeralConverter.js";
+import { OTTemplaticParsingFormatStrings } from "./OTTemplaticParsingFormatStrings.js";
 export declare class OTTemplaticParsingFormat extends ParsingFormatBase implements ParsingFormat {
     private strings;
     private numeralConverter;

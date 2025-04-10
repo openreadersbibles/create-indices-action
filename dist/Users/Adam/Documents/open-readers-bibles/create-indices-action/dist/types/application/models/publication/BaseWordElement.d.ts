@@ -1,7 +1,8 @@
-import { PublicationRequest } from "../../models/PublicationRequest";
-import { PublicationWord } from "./PublicationWord";
-export declare class BaseWordElement {
+import { PublicationRequest } from "../../models/PublicationRequest.js";
+import { PublicationWord } from "./PublicationWord.js";
+export declare class BaseWordElement<T> {
+    row: T;
     request: PublicationRequest;
     word: PublicationWord;
-    constructor(word: PublicationWord, request: PublicationRequest);
+    constructor(obj: T, word: PublicationWord, request: PublicationRequest);
 }

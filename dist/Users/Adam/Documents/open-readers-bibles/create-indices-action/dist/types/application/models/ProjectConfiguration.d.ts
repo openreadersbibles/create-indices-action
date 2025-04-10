@@ -1,8 +1,14 @@
-import { UserId } from "./UserProfile";
-import { Canon, UbsBook, VerseReference } from "./VerseReference";
-import { ParsingFormat } from "./parsing-formats/ParsingFormat";
-import { PublicationConfiguration } from "./PublicationConfiguration";
-import { ProjectParsingFormats } from "./ProjectParsingFormats";
+import { UserId } from "./UserProfile.js";
+import { Canon, UbsBook, VerseReference } from "./VerseReference.js";
+import { ParsingFormat } from "./parsing-formats/ParsingFormat.js";
+import { PublicationConfiguration, PublicationConfigurationRow } from "./PublicationConfiguration.js";
+import { ProjectParsingFormats, ProjectParsingFormatsObject } from "./ProjectParsingFormats.js";
+interface ThresholdObject {
+    [key: string]: number;
+}
+interface BooknamesObject {
+    [key: string]: string;
+}
 export type ProjectRole = 'admin' | 'member' | 'disabled';
 export declare const PROJECT_ROLES: ProjectRole[];
 export interface ProjectRoleRow {
@@ -23,15 +29,17 @@ export interface ProjectConfigurationRow {
     project_title: string;
     project_description: string;
     layout_direction: LayoutDirection;
-    frequency_thresholds: any;
-    bookNames: any;
-    canons: any;
+    frequency_thresholds: ThresholdObject;
+    bookNames: BooknamesObject;
+    canons: Canon[];
     roles: ProjectRoleRow[];
     allow_joins: boolean;
     font_families: string;
     font_size: number | undefined;
-    parsing_formats: any;
-    publication_configurations: any;
+    parsing_formats: ProjectParsingFormatsObject;
+    publication_configurations?: {
+        [key: string]: PublicationConfigurationRow;
+    };
     numerals: string[];
 }
 export declare class ProjectConfiguration {
@@ -85,12 +93,13 @@ export declare class ProjectConfiguration {
     formatVerseReference(ref: VerseReference): string;
     getBookName(book: UbsBook): string;
     static performNumeralReplacement(str: string, numerals: string[]): string;
-    getParsingFormat(key: string): ParsingFormat | undefined;
     setParsingFormat(value: ParsingFormat): void;
     get repositoryName(): string;
+    get publicationUrl(): string;
     deepCopy(): ProjectConfiguration;
     static getRepositoryName(project_id: string): string;
     get publicationConfigurations(): Map<string, PublicationConfiguration>;
     toObject(): ProjectConfigurationRow;
     static fromRow(row: ProjectConfigurationRow): ProjectConfiguration;
 }
+export {};

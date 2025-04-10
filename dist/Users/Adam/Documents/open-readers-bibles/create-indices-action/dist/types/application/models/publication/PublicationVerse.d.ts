@@ -1,9 +1,10 @@
-import { PublicationWord } from "./PublicationWord";
-import { VerseReference } from "../../models/VerseReference";
-import { PublicationRequest } from "../../models/PublicationRequest";
-import { PublicationWordElement } from "./PublicationWordElement";
-import { XMLBuilder } from "xmlbuilder2/lib/interfaces";
-export type WordElementCreator = (obj: any, word: PublicationWord, request: PublicationRequest) => PublicationWordElement;
+import { PublicationWord } from "./PublicationWord.js";
+import { VerseReference } from "../../models/VerseReference.js";
+import { PublicationRequest } from "../../models/PublicationRequest.js";
+import { PublicationWordElement } from "./PublicationWordElement.js";
+import { PublicationHebrewWordElementRow } from "./PublicationHebrewWordElementRow.js";
+import { XMLBuilder } from "xmlbuilder2/lib/interfaces.js";
+import { PublicationGreekWordElementRow } from "./PublicationGreekWordElementRow.js";
 export declare class PublicationVerse {
     reference: VerseReference;
     request: PublicationRequest;
@@ -15,5 +16,5 @@ export declare class PublicationVerse {
     private footnoteText;
     verseXml(parent: XMLBuilder): void;
     get elements(): PublicationWordElement[];
-    static fromWordElements(rows: any[], reference: VerseReference, request: PublicationRequest, objectCreator: WordElementCreator): PublicationVerse;
+    static fromWordElements<T extends PublicationGreekWordElementRow | PublicationHebrewWordElementRow>(rows: T[], reference: VerseReference, request: PublicationRequest, objectCreator: (obj: T, word: PublicationWord, request: PublicationRequest) => PublicationWordElement): PublicationVerse;
 }

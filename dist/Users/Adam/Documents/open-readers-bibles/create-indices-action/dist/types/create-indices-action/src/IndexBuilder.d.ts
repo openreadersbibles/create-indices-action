@@ -15,6 +15,7 @@ export declare class IndexBuilder {
     getRelevantFiles(directory: string): Promise<string[]>;
     getDirectories(): Promise<string[]>;
     createIndexForFolder(folder: string): Promise<GitHubFile>;
+    createRootIndex(folders: string[]): Promise<GitHubFile>;
     getRepoFile(path: string): Promise<string>;
     addFilesToRepository(repo: string, files: GitHubFile[], branch?: string): Promise<void>;
 }
