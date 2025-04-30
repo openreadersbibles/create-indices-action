@@ -14,7 +14,7 @@ export declare class FileIndex {
     hasPdf(canon: Canon, book: UbsBook): boolean;
     hasEither(canon: Canon, book: UbsBook): boolean;
     hasAnyFiles(cd: CanonData): boolean;
-    toHtml(): string;
+    toHtml(): Promise<string>;
     produceCanonTable(cd: CanonData): string;
 }
 export {};

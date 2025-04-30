@@ -10,6 +10,7 @@ import { ProjectConfiguration } from '../../application/models/ProjectConfigurat
 import { Canon } from "../../application/models/Canon.js"
 import { UbsBook } from "../../application/models/UbsBook.js"
 import { FilenameData } from './FilenameData.js'
+import { getProjectDescription } from './getProjectDescription.js'
 
 type IndexByBook = Map<UbsBook, FilenameData | undefined>
 
@@ -60,7 +61,7 @@ export class FileIndex {
     return cd.books.some((book) => this.hasEither(cd.name, book))
   }
 
-  toHtml(): string {
+  async toHtml(): Promise<string> {
     return `
 <!DOCTYPE html>
 <html lang="en">
@@ -72,7 +73,7 @@ export class FileIndex {
 </head>
 <body>
 <h1>${this.project.title}</h1>
-<p class="project-description">${this.project.description}</p>
+<p class="project-description">${await getProjectDescription(this.project)}</p>
 ${this.produceCanonTable(OT)}
 ${this.produceCanonTable(LXX)}
 ${this.produceCanonTable(NT)}

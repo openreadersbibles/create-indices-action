@@ -5,12 +5,7 @@ import { Octokit } from '@octokit/core'
 import { ProjectConfiguration } from '../../application/models/ProjectConfiguration.js'
 import { FileIndex } from './FileIndex.js'
 import { ProjectConfigurationRow } from '../../application/models/ProjectConfigurationRow.js'
-
-/// https://github.com/markedjs/marked
-import { marked } from "marked";
-import { JSDOM } from 'jsdom';
-/// https://github.com/cure53/DOMPurify
-import DOMPurify, { WindowLike } from 'dompurify';
+import { getProjectDescription } from './getProjectDescription.js'
 
 interface GitHubFile {
   path: string
@@ -113,7 +108,7 @@ export class IndexBuilder {
     core.debug(`Processing ${folder}:`)
     const files = await this.getRelevantFiles(folder)
     const index = new FileIndex(files, this.project)
-    return { path: `${folder}/index.html`, content: index.toHtml() }
+    return { path: `${folder}/index.html`, content: await index.toHtml() }
   }
 
   async createRootIndex(folders: string[]): Promise<GitHubFile> {
@@ -137,21 +132,12 @@ export class IndexBuilder {
 </head>
 <body>
 <h1>${this.project.title}</h1>
-<p class="project-description">${await this.getProjectDescription()}</p>
+<p class="project-description">${await getProjectDescription(this.project)}</p>
 ${list}
 </body>
 </html>
         `
     return { path: `index.html`, content: html }
-  }
-
-  async getProjectDescription(): Promise<string> {
-    if (!this.project) {
-      return "";
-    }
-    const window = new JSDOM('').window;
-    const purify = DOMPurify(window as WindowLike);
-    return purify.sanitize(await marked.parse(this.project.description));
   }
 
 
