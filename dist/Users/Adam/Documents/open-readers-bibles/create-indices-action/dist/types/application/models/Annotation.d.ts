@@ -92,8 +92,8 @@ export declare const AnnotationSchema: z.ZodObject<{
         gloss_id: number;
     }>]>>;
 }, "strip", z.ZodTypeAny, {
-    html: string;
     type: "null" | "word" | "markdown" | "wordplusmarkdown";
+    html: string;
     gloss_id: number;
     tex: string;
     toAnnotationObject: (...args: unknown[]) => {
@@ -121,8 +121,8 @@ export declare const AnnotationSchema: z.ZodObject<{
         gloss_id: number;
     };
 }, {
-    html: string;
     type: "null" | "word" | "markdown" | "wordplusmarkdown";
+    html: string;
     gloss_id: number;
     tex: string;
     toAnnotationObject: (...args: unknown[]) => {

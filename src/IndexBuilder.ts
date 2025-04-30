@@ -4,9 +4,13 @@ import * as github from '@actions/github'
 import { Octokit } from '@octokit/core'
 import { ProjectConfiguration } from '../../application/models/ProjectConfiguration.js'
 import { FileIndex } from './FileIndex.js'
-import { JSDOM } from 'jsdom';
-import DOMPurify, { WindowLike } from 'dompurify';
 import { ProjectConfigurationRow } from '../../application/models/ProjectConfigurationRow.js'
+
+/// https://github.com/markedjs/marked
+import { marked } from "marked";
+import { JSDOM } from 'jsdom';
+/// https://github.com/cure53/DOMPurify
+import DOMPurify, { WindowLike } from 'dompurify';
 
 interface GitHubFile {
   path: string
@@ -133,7 +137,7 @@ export class IndexBuilder {
 </head>
 <body>
 <h1>${this.project.title}</h1>
-<p class="project-description">${this.projectDescription}</p>
+<p class="project-description">${await this.getProjectDescription()}</p>
 ${list}
 </body>
 </html>
@@ -141,13 +145,13 @@ ${list}
     return { path: `index.html`, content: html }
   }
 
-  get projectDescription(): string {
+  async getProjectDescription(): Promise<string> {
     if (!this.project) {
       return "";
     }
     const window = new JSDOM('').window;
     const purify = DOMPurify(window as WindowLike);
-    return purify.sanitize(this.project.description);
+    return purify.sanitize(await marked.parse(this.project.description));
   }
 
 
