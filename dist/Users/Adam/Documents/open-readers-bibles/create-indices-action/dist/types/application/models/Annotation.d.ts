@@ -1,71 +1,194 @@
+import { z } from "zod";
 import { MiniMarkdown } from './MiniMarkdown.js';
+import { AnnotationJsonObject, AnnotationType } from "./AnnotationJsonObject.js";
 export declare const converter: MiniMarkdown;
-export type AnnotationType = "word" | "markdown" | "wordplusmarkdown" | "null";
-export type AnnotationJsonObject = {
-    type: "word";
-    content: WordAnnotationContent;
-} | {
-    type: "markdown";
-    content: MarkdownAnnotationContent;
-} | {
-    type: "wordplusmarkdown";
-    content: WordPlusMarkdownAnnotationContent;
-} | {
-    type: "null";
-    content: string;
-};
-interface WordAnnotationContent {
-    gloss: string;
-}
-export interface MarkdownAnnotationContent {
-    markdown: string;
-}
-interface WordPlusMarkdownAnnotationContent {
-    gloss: string;
-    markdown: string;
-}
-export interface Annotation {
-    type: AnnotationType;
+export declare const AnnotationSchema: z.ZodObject<{
+    gloss_id: z.ZodNumber;
+    type: z.ZodEnum<["word", "markdown", "wordplusmarkdown", "null"]>;
+    html: z.ZodString;
+    tex: z.ZodString;
+    toAnnotationObject: z.ZodFunction<z.ZodTuple<[], z.ZodUnknown>, z.ZodDiscriminatedUnion<"type", [z.ZodObject<{
+        gloss_id: z.ZodNumber;
+        type: z.ZodLiteral<"word">;
+        content: z.ZodObject<{
+            gloss: z.ZodString;
+        }, "strip", z.ZodTypeAny, {
+            gloss: string;
+        }, {
+            gloss: string;
+        }>;
+    }, "strip", z.ZodTypeAny, {
+        type: "word";
+        content: {
+            gloss: string;
+        };
+        gloss_id: number;
+    }, {
+        type: "word";
+        content: {
+            gloss: string;
+        };
+        gloss_id: number;
+    }>, z.ZodObject<{
+        gloss_id: z.ZodNumber;
+        type: z.ZodLiteral<"markdown">;
+        content: z.ZodObject<{
+            markdown: z.ZodString;
+        }, "strip", z.ZodTypeAny, {
+            markdown: string;
+        }, {
+            markdown: string;
+        }>;
+    }, "strip", z.ZodTypeAny, {
+        type: "markdown";
+        content: {
+            markdown: string;
+        };
+        gloss_id: number;
+    }, {
+        type: "markdown";
+        content: {
+            markdown: string;
+        };
+        gloss_id: number;
+    }>, z.ZodObject<{
+        gloss_id: z.ZodNumber;
+        type: z.ZodLiteral<"wordplusmarkdown">;
+        content: z.ZodObject<{
+            gloss: z.ZodString;
+            markdown: z.ZodString;
+        }, "strip", z.ZodTypeAny, {
+            markdown: string;
+            gloss: string;
+        }, {
+            markdown: string;
+            gloss: string;
+        }>;
+    }, "strip", z.ZodTypeAny, {
+        type: "wordplusmarkdown";
+        content: {
+            markdown: string;
+            gloss: string;
+        };
+        gloss_id: number;
+    }, {
+        type: "wordplusmarkdown";
+        content: {
+            markdown: string;
+            gloss: string;
+        };
+        gloss_id: number;
+    }>, z.ZodObject<{
+        gloss_id: z.ZodNumber;
+        type: z.ZodLiteral<"null">;
+        content: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        type: "null";
+        content: string;
+        gloss_id: number;
+    }, {
+        type: "null";
+        content: string;
+        gloss_id: number;
+    }>]>>;
+}, "strip", z.ZodTypeAny, {
     html: string;
+    type: "null" | "word" | "markdown" | "wordplusmarkdown";
+    gloss_id: number;
     tex: string;
-    toAnnotationObject: () => AnnotationJsonObject;
-}
+    toAnnotationObject: (...args: unknown[]) => {
+        type: "word";
+        content: {
+            gloss: string;
+        };
+        gloss_id: number;
+    } | {
+        type: "markdown";
+        content: {
+            markdown: string;
+        };
+        gloss_id: number;
+    } | {
+        type: "wordplusmarkdown";
+        content: {
+            markdown: string;
+            gloss: string;
+        };
+        gloss_id: number;
+    } | {
+        type: "null";
+        content: string;
+        gloss_id: number;
+    };
+}, {
+    html: string;
+    type: "null" | "word" | "markdown" | "wordplusmarkdown";
+    gloss_id: number;
+    tex: string;
+    toAnnotationObject: (...args: unknown[]) => {
+        type: "word";
+        content: {
+            gloss: string;
+        };
+        gloss_id: number;
+    } | {
+        type: "markdown";
+        content: {
+            markdown: string;
+        };
+        gloss_id: number;
+    } | {
+        type: "wordplusmarkdown";
+        content: {
+            markdown: string;
+            gloss: string;
+        };
+        gloss_id: number;
+    } | {
+        type: "null";
+        content: string;
+        gloss_id: number;
+    };
+}>;
+export type Annotation = z.infer<typeof AnnotationSchema>;
 export declare function annotationFromJson(json: string): Annotation | undefined;
 export declare function annotationFromObject(obj: AnnotationJsonObject): Annotation | undefined;
-export declare class WordAnnotation implements Annotation {
-    private _gloss;
+declare class AnnotationBase {
     type: AnnotationType;
-    constructor(gloss: string);
+    gloss_id: number;
+    constructor(type: AnnotationType, gloss_id: number);
+}
+export declare class WordAnnotation extends AnnotationBase implements Annotation {
+    private _gloss;
+    constructor(gloss: string, gloss_id: number);
     get html(): string;
     get tex(): string;
+    get gloss(): string;
     toAnnotationObject(): AnnotationJsonObject;
     static fromObject(obj: AnnotationJsonObject): WordAnnotation;
 }
-export declare class MarkdownAnnotation implements Annotation {
+export declare class MarkdownAnnotation extends AnnotationBase implements Annotation {
     private _markdown;
-    type: AnnotationType;
-    constructor(markdown: string);
+    constructor(markdown: string, gloss_id: number);
     get html(): string;
     get tex(): string;
     toAnnotationObject(): AnnotationJsonObject;
     static fromObject(obj: AnnotationJsonObject): MarkdownAnnotation;
 }
-export declare class WordPlusMarkdownAnnotation implements Annotation {
+export declare class WordPlusMarkdownAnnotation extends AnnotationBase implements Annotation {
     private _gloss;
     private _markdown;
-    type: AnnotationType;
-    constructor(gloss: string, markdown: string);
+    constructor(gloss: string, markdown: string, gloss_id: number);
     get html(): string;
     get tex(): string;
     toAnnotationObject(): AnnotationJsonObject;
     static fromObject(obj: AnnotationJsonObject): WordPlusMarkdownAnnotation;
 }
-export declare class NullAnnotation implements Annotation {
-    type: AnnotationType;
-    constructor();
+export declare class NullAnnotation extends AnnotationBase implements Annotation {
+    constructor(gloss_id: number);
     get html(): string;
     get tex(): string;
     toAnnotationObject(): AnnotationJsonObject;
-    static fromObject(): NullAnnotation;
+    static fromObject(obj: AnnotationJsonObject): NullAnnotation;
 }
 export {};

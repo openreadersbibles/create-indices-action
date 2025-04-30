@@ -7,7 +7,8 @@ import {
   OT
 } from '../../application/models/Canons.js'
 import { ProjectConfiguration } from '../../application/models/ProjectConfiguration.js'
-import { Canon, UbsBook } from '../../application/models/VerseReference.js'
+import { Canon } from "../../application/models/Canon.js"
+import { UbsBook } from "../../application/models/UbsBook.js"
 import { FilenameData } from './FilenameData.js'
 
 type IndexByBook = Map<UbsBook, FilenameData | undefined>

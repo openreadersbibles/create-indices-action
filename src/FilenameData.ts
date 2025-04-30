@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
-import { Canon, UbsBook } from '../../application/models/VerseReference.js'
+import { Canon } from "../../application/models/Canon.js"
+import { UbsBook } from "../../application/models/UbsBook.js"
 
 export class FilenameData {
   filename: string

@@ -1,0 +1,31 @@
+import { z } from "zod";
+import { CanonSchema } from "@models/Canon.js";
+import { PublicationConfigurationRowSchema } from "./PublicationConfigurationRow";
+import { ProjectParsingFormatsObjectSchema } from "./ProjectParsingFormatsObject";
+// Define dependent schemas
+const ThresholdObjectSchema = z.record(z.number()); // { [key: string]: number }
+const BooknamesObjectSchema = z.record(z.string()); // { [key: string]: string }
+const ProjectRoleSchema = z.enum(['admin', 'member', 'disabled']); // ProjectRole
+const LayoutDirectionSchema = z.enum(['ltr', 'rtl']); // LayoutDirection
+const ProjectRoleRowSchema = z.object({
+    user_id: z.string(),
+    user_role: ProjectRoleSchema,
+    power_user: z.union([z.literal(1), z.literal(0)]), // 1 or 0
+});
+// Define the main schema
+export const ProjectConfigurationRowSchema = z.object({
+    project_id: z.string(), // Assuming ProjectId is a string
+    project_title: z.string(),
+    project_description: z.string(),
+    layout_direction: LayoutDirectionSchema,
+    frequency_thresholds: ThresholdObjectSchema,
+    bookNames: BooknamesObjectSchema,
+    canons: z.array(CanonSchema),
+    roles: z.array(ProjectRoleRowSchema),
+    allow_joins: z.boolean(),
+    font_families: z.string(),
+    font_size: z.number().optional(), // number | undefined
+    parsing_formats: ProjectParsingFormatsObjectSchema,
+    publication_configurations: z.record(PublicationConfigurationRowSchema).optional(), // { [key: string]: PublicationConfigurationRow }
+    numerals: z.array(z.string()),
+});

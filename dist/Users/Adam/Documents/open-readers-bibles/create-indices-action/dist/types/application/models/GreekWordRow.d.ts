@@ -1,37 +1,274 @@
-import { GlossRow, PhraseGlossRow } from "./database-input-output.js";
-import { SuggestionRow } from "./HebrewWordRow.js";
-export type NTPartOfSpeech = 'particle' | 'verb' | 'relative-pronoun' | 'personal-pronoun' | 'interrogative-indefinite-pronoun' | 'demonstrative-pronoun' | 'definite-article' | 'preposition' | 'noun' | 'interjection' | 'adverb' | 'conjunction' | 'adjective';
-export type NTPerson = 'NA' | '1st' | '2nd' | '3rd';
-export type NTTense = 'NA' | 'present' | 'imperfect' | 'future' | 'aorist' | 'perfect' | 'pluperfect';
-export type NTVoice = 'NA' | 'active' | 'middle' | 'passive';
-export type NTMood = 'NA' | 'indicative' | 'imperative' | 'subjunctive' | 'optative' | 'infinitive' | 'participle';
-export type NTCase = 'NA' | 'nominative' | 'genitive' | 'dative' | 'accusative';
-export type NTNumber = 'NA' | 'singular' | 'plural';
-export type NTGender = 'NA' | 'masculine' | 'feminine' | 'neuter';
-export type NTDegree = 'NA' | 'comparative' | 'superlative';
-export interface GreekWordRow {
+import { z } from "zod";
+import { WordRow } from "./WordRow.js";
+export declare const NTPartOfSpeechSchema: z.ZodEnum<["particle", "verb", "relative-pronoun", "personal-pronoun", "interrogative-indefinite-pronoun", "demonstrative-pronoun", "definite-article", "preposition", "noun", "interjection", "adverb", "conjunction", "adjective"]>;
+export type NTPartOfSpeech = z.infer<typeof NTPartOfSpeechSchema>;
+export declare const NTPersonSchema: z.ZodEnum<["NA", "1st", "2nd", "3rd"]>;
+export type NTPerson = z.infer<typeof NTPersonSchema>;
+export declare const NTTenseSchema: z.ZodEnum<["NA", "present", "imperfect", "future", "aorist", "perfect", "pluperfect"]>;
+export type NTTense = z.infer<typeof NTTenseSchema>;
+export declare const NTVoiceSchema: z.ZodEnum<["NA", "active", "middle", "passive"]>;
+export type NTVoice = z.infer<typeof NTVoiceSchema>;
+export declare const NTMoodSchema: z.ZodEnum<["NA", "indicative", "imperative", "subjunctive", "optative", "infinitive", "participle"]>;
+export type NTMood = z.infer<typeof NTMoodSchema>;
+export declare const NTCaseSchema: z.ZodEnum<["NA", "nominative", "genitive", "dative", "accusative"]>;
+export type NTCase = z.infer<typeof NTCaseSchema>;
+export declare const NTNumberSchema: z.ZodEnum<["NA", "singular", "plural"]>;
+export type NTNumber = z.infer<typeof NTNumberSchema>;
+export declare const NTGenderSchema: z.ZodEnum<["NA", "masculine", "feminine", "neuter"]>;
+export type NTGender = z.infer<typeof NTGenderSchema>;
+export declare const NTDegreeSchema: z.ZodEnum<["NA", "comparative", "superlative"]>;
+export type NTDegree = z.infer<typeof NTDegreeSchema>;
+export declare const GreekWordRowSchema: z.ZodObject<{
+    _id: z.ZodNumber;
+    freq_lex: z.ZodNumber;
+    lex_id: z.ZodNumber;
+    punctuated_text: z.ZodString;
+    unpunctuated_text: z.ZodString;
+    lemma: z.ZodString;
+    part_of_speech: z.ZodEnum<["particle", "verb", "relative-pronoun", "personal-pronoun", "interrogative-indefinite-pronoun", "demonstrative-pronoun", "definite-article", "preposition", "noun", "interjection", "adverb", "conjunction", "adjective"]>;
+    person: z.ZodEnum<["NA", "1st", "2nd", "3rd"]>;
+    tense: z.ZodEnum<["NA", "present", "imperfect", "future", "aorist", "perfect", "pluperfect"]>;
+    voice: z.ZodEnum<["NA", "active", "middle", "passive"]>;
+    mood: z.ZodEnum<["NA", "indicative", "imperative", "subjunctive", "optative", "infinitive", "participle"]>;
+    grammatical_case: z.ZodEnum<["NA", "nominative", "genitive", "dative", "accusative"]>;
+    grammatical_number: z.ZodEnum<["NA", "singular", "plural"]>;
+    gender: z.ZodEnum<["NA", "masculine", "feminine", "neuter"]>;
+    degree: z.ZodEnum<["NA", "comparative", "superlative"]>;
+    languageISO: z.ZodEnum<["hbo", "arc", "grc"]>;
+    votes: z.ZodArray<z.ZodObject<{
+        annotationObject: z.ZodDiscriminatedUnion<"type", [z.ZodObject<{
+            gloss_id: z.ZodNumber;
+            type: z.ZodLiteral<"word">;
+            content: z.ZodObject<{
+                gloss: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                gloss: string;
+            }, {
+                gloss: string;
+            }>;
+        }, "strip", z.ZodTypeAny, {
+            type: "word";
+            content: {
+                gloss: string;
+            };
+            gloss_id: number;
+        }, {
+            type: "word";
+            content: {
+                gloss: string;
+            };
+            gloss_id: number;
+        }>, z.ZodObject<{
+            gloss_id: z.ZodNumber;
+            type: z.ZodLiteral<"markdown">;
+            content: z.ZodObject<{
+                markdown: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                markdown: string;
+            }, {
+                markdown: string;
+            }>;
+        }, "strip", z.ZodTypeAny, {
+            type: "markdown";
+            content: {
+                markdown: string;
+            };
+            gloss_id: number;
+        }, {
+            type: "markdown";
+            content: {
+                markdown: string;
+            };
+            gloss_id: number;
+        }>, z.ZodObject<{
+            gloss_id: z.ZodNumber;
+            type: z.ZodLiteral<"wordplusmarkdown">;
+            content: z.ZodObject<{
+                gloss: z.ZodString;
+                markdown: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                markdown: string;
+                gloss: string;
+            }, {
+                markdown: string;
+                gloss: string;
+            }>;
+        }, "strip", z.ZodTypeAny, {
+            type: "wordplusmarkdown";
+            content: {
+                markdown: string;
+                gloss: string;
+            };
+            gloss_id: number;
+        }, {
+            type: "wordplusmarkdown";
+            content: {
+                markdown: string;
+                gloss: string;
+            };
+            gloss_id: number;
+        }>, z.ZodObject<{
+            gloss_id: z.ZodNumber;
+            type: z.ZodLiteral<"null">;
+            content: z.ZodString;
+        }, "strip", z.ZodTypeAny, {
+            type: "null";
+            content: string;
+            gloss_id: number;
+        }, {
+            type: "null";
+            content: string;
+            gloss_id: number;
+        }>]>;
+        gloss_id: z.ZodNumber;
+        votes: z.ZodArray<z.ZodString, "many">;
+    }, "strip", z.ZodTypeAny, {
+        gloss_id: number;
+        votes: string[];
+        annotationObject: {
+            type: "word";
+            content: {
+                gloss: string;
+            };
+            gloss_id: number;
+        } | {
+            type: "markdown";
+            content: {
+                markdown: string;
+            };
+            gloss_id: number;
+        } | {
+            type: "wordplusmarkdown";
+            content: {
+                markdown: string;
+                gloss: string;
+            };
+            gloss_id: number;
+        } | {
+            type: "null";
+            content: string;
+            gloss_id: number;
+        };
+    }, {
+        gloss_id: number;
+        votes: string[];
+        annotationObject: {
+            type: "word";
+            content: {
+                gloss: string;
+            };
+            gloss_id: number;
+        } | {
+            type: "markdown";
+            content: {
+                markdown: string;
+            };
+            gloss_id: number;
+        } | {
+            type: "wordplusmarkdown";
+            content: {
+                markdown: string;
+                gloss: string;
+            };
+            gloss_id: number;
+        } | {
+            type: "null";
+            content: string;
+            gloss_id: number;
+        };
+    }>, "many">;
+    englishGloss: z.ZodString;
+}, "strip", z.ZodTypeAny, {
     _id: number;
     freq_lex: number;
     lex_id: number;
-    myVote: 1 | 0;
     punctuated_text: string;
     unpunctuated_text: string;
     lemma: string;
-    part_of_speech: NTPartOfSpeech;
-    person: NTPerson;
-    tense: NTTense;
-    voice: NTVoice;
-    mood: NTMood;
-    grammatical_case: NTCase;
-    grammatical_number: NTNumber;
-    gender: NTGender;
-    degree: NTDegree;
-    languageISO: 'hbo' | 'arc' | 'grc';
-    votes: GlossRow[];
+    part_of_speech: "verb" | "noun" | "definite-article" | "personal-pronoun" | "relative-pronoun" | "adjective" | "demonstrative-pronoun" | "interrogative-indefinite-pronoun" | "particle" | "preposition" | "interjection" | "adverb" | "conjunction";
+    person: "1st" | "2nd" | "3rd" | "NA";
+    tense: "present" | "imperfect" | "future" | "aorist" | "perfect" | "pluperfect" | "NA";
+    voice: "active" | "middle" | "passive" | "NA";
+    mood: "indicative" | "imperative" | "subjunctive" | "optative" | "infinitive" | "participle" | "NA";
+    grammatical_case: "nominative" | "genitive" | "dative" | "accusative" | "NA";
+    grammatical_number: "singular" | "plural" | "NA";
+    gender: "masculine" | "feminine" | "neuter" | "NA";
+    degree: "NA" | "comparative" | "superlative";
+    languageISO: "hbo" | "arc" | "grc";
+    votes: {
+        gloss_id: number;
+        votes: string[];
+        annotationObject: {
+            type: "word";
+            content: {
+                gloss: string;
+            };
+            gloss_id: number;
+        } | {
+            type: "markdown";
+            content: {
+                markdown: string;
+            };
+            gloss_id: number;
+        } | {
+            type: "wordplusmarkdown";
+            content: {
+                markdown: string;
+                gloss: string;
+            };
+            gloss_id: number;
+        } | {
+            type: "null";
+            content: string;
+            gloss_id: number;
+        };
+    }[];
     englishGloss: string;
-}
-export interface GetNTVerseResponse {
-    words: GreekWordRow[];
-    suggestions: SuggestionRow[];
-    phrase_glosses: PhraseGlossRow[];
-}
+}, {
+    _id: number;
+    freq_lex: number;
+    lex_id: number;
+    punctuated_text: string;
+    unpunctuated_text: string;
+    lemma: string;
+    part_of_speech: "verb" | "noun" | "definite-article" | "personal-pronoun" | "relative-pronoun" | "adjective" | "demonstrative-pronoun" | "interrogative-indefinite-pronoun" | "particle" | "preposition" | "interjection" | "adverb" | "conjunction";
+    person: "1st" | "2nd" | "3rd" | "NA";
+    tense: "present" | "imperfect" | "future" | "aorist" | "perfect" | "pluperfect" | "NA";
+    voice: "active" | "middle" | "passive" | "NA";
+    mood: "indicative" | "imperative" | "subjunctive" | "optative" | "infinitive" | "participle" | "NA";
+    grammatical_case: "nominative" | "genitive" | "dative" | "accusative" | "NA";
+    grammatical_number: "singular" | "plural" | "NA";
+    gender: "masculine" | "feminine" | "neuter" | "NA";
+    degree: "NA" | "comparative" | "superlative";
+    languageISO: "hbo" | "arc" | "grc";
+    votes: {
+        gloss_id: number;
+        votes: string[];
+        annotationObject: {
+            type: "word";
+            content: {
+                gloss: string;
+            };
+            gloss_id: number;
+        } | {
+            type: "markdown";
+            content: {
+                markdown: string;
+            };
+            gloss_id: number;
+        } | {
+            type: "wordplusmarkdown";
+            content: {
+                markdown: string;
+                gloss: string;
+            };
+            gloss_id: number;
+        } | {
+            type: "null";
+            content: string;
+            gloss_id: number;
+        };
+    }[];
+    englishGloss: string;
+}>;
+export type GreekWordRow = z.infer<typeof GreekWordRowSchema> & WordRow;

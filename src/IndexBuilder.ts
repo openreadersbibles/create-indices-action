@@ -2,11 +2,11 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { Octokit } from '@octokit/core'
-import {
-  ProjectConfiguration,
-  ProjectConfigurationRow
-} from '../../application/models/ProjectConfiguration.js'
+import { ProjectConfiguration } from '../../application/models/ProjectConfiguration.js'
 import { FileIndex } from './FileIndex.js'
+import { JSDOM } from 'jsdom';
+import DOMPurify, { WindowLike } from 'dompurify';
+import { ProjectConfigurationRow } from '../../application/models/ProjectConfigurationRow.js'
 
 interface GitHubFile {
   path: string
@@ -133,12 +133,21 @@ export class IndexBuilder {
 </head>
 <body>
 <h1>${this.project.title}</h1>
-<p class="project-description">${this.project.description}</p>
+<p class="project-description">${this.projectDescription}</p>
 ${list}
 </body>
 </html>
         `
     return { path: `index.html`, content: html }
+  }
+
+  get projectDescription(): string {
+    if (!this.project) {
+      return "";
+    }
+    const window = new JSDOM('').window;
+    const purify = DOMPurify(window as WindowLike);
+    return purify.sanitize(this.project.description);
   }
 
 
